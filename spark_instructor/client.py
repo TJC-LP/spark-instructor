@@ -15,9 +15,10 @@ def get_databricks_client() -> instructor.Instructor:
 
     Ensure that the ``DATABRICKS_HOST`` and ``DATABRICKS_TOKEN`` environment variables are set.
     """
-    DATABRICKS_BASE_URL = f"{os.getenv('DATABRICKS_HOST')}/serving-endpoints"
+    assert "DATABRICKS_HOST" in os.environ, "``DATABRICKS_HOST`` is not set!"
+    assert "DATABRICKS_TOKEN" in os.environ, "``DATABRICKS_TOKEN`` is not set"
     return instructor.from_openai(
-        OpenAI(api_key=os.getenv("DATABRICKS_TOKEN"), base_url=DATABRICKS_BASE_URL),
+        OpenAI(api_key=os.getenv("DATABRICKS_TOKEN"), base_url=f"{os.getenv('DATABRICKS_HOST')}/serving-endpoints"),
         mode=instructor.Mode.MD_JSON,
     )
 
@@ -27,6 +28,7 @@ def get_openai_client() -> instructor.Instructor:
 
     Ensure that ``OPENAI_API_KEY`` is set.
     """
+    assert "OPENAI_API_KEY" in os.environ, "``OPENAI_API_KEY`` is not set!"
     return instructor.from_openai(OpenAI())
 
 
@@ -35,8 +37,15 @@ def get_anthropic_client() -> instructor.Instructor:
 
     Ensure that ``ANTHROPIC_API_KEY`` is set.
     """
-    from anthropic import Anthropic
+    try:
+        from anthropic import Anthropic
+    except ImportError:
+        raise ImportError(
+            "Please install ``anthropic`` by running ``pip install anthropic`` "
+            "or ``pip install spark-instructor[anthropic]``"
+        )
 
+    assert "ANTHROPIC_API_KEY" in os.environ, "``ANTHROPIC_API_KEY`` is not set!"
     return instructor.from_anthropic(Anthropic())
 
 

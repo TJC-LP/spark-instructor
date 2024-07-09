@@ -2,7 +2,10 @@ import pytest
 from pydantic import BaseModel
 
 from spark_instructor.client import MODEL_CLASS_ROUTE, ModelClass
-from spark_instructor.udf import create_completion, create_serialized_completion
+from spark_instructor.udf import (
+    create_object_from_messages,
+    create_serialized_completion,
+)
 
 
 class MockModel(BaseModel):
@@ -22,7 +25,7 @@ def mock_model_class_route(mocker, mock_client):
 
 
 def test_create_completion(mock_model_class_route):
-    result = create_completion(
+    result = create_object_from_messages(
         model="gpt-3.5-turbo",
         response_model=MockModel,
         messages=[{"role": "user", "content": "Hello"}],
@@ -36,7 +39,7 @@ def test_create_completion(mock_model_class_route):
 
 
 def test_process_messages(mocker, mock_model_class_route):
-    mock_create_completion = mocker.patch("spark_instructor.udf.create_completion")
+    mock_create_completion = mocker.patch("spark_instructor.udf.create_object_from_messages")
     mock_create_completion.return_value = MockModel(result="test")
 
     result = create_serialized_completion(
