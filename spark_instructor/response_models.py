@@ -1,9 +1,9 @@
 """Sample response models for parsing."""
 
-from pydantic_spark.base import SparkBase  # type: ignore
+from pydantic import BaseModel
 
 
-class User(SparkBase):
+class User(BaseModel):
     """A user."""
 
     name: str
