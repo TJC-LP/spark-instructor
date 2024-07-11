@@ -7,8 +7,11 @@ name = "spark-instructor"
 version = "0.0.1"
 description = "A framework for integrating `instructor` with Spark"
 readme = "README.md"
-license = "LICENSE"
+license = "MIT"
 authors = ["Richie Caputo <rcaputo3@tjclp.com>"]
+classifiers = [
+   "License :: OSI Approved :: MIT License",
+]
 
 [tool.poetry.dependencies]
 python = "^3.10,<4.0.0"
