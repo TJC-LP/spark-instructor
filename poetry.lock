@@ -3731,5 +3731,5 @@ databricks = []
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.10"
-content-hash = "c9e336434e2d0e69e990bf532fb6ce9d383588ca4dbe6a1d7fba20fa6dbe4a4f"
+python-versions = "^3.10,<4.0.0"
+content-hash = "642c3407907e7796d29f50925dbbf3fa9164c9fe71451754b11f9e201136d1b3"
