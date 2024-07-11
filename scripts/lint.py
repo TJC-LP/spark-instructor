@@ -31,7 +31,7 @@ COMMANDS = [
     # Check for docstring issues
     "pydocstyle spark_instructor",
     # Run full coverage test suite
-    "pytest --cov=spark_instructor --cov-report term-missing .",
+    f"pytest --cov=spark_instructor --cov-report{'=term-missing' if not IS_CI else '=json'} .",
 ]
 
 
