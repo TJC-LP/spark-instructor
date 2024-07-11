@@ -19,8 +19,7 @@ from spark_instructor.completions.openai import OpenAICompletion
 
 @dataclass
 class ModelSerializer:
-    """
-    A class for serializing Pydantic models to Spark schemas.
+    """A class for serializing Pydantic models to Spark schemas.
 
     This class provides functionality to convert Pydantic models to Spark StructType schemas,
     with fields named according to the snake case version of the model class names.
@@ -35,8 +34,7 @@ class ModelSerializer:
 
     @staticmethod
     def to_snake_case(name: str) -> str:
-        """
-        Convert a string from camel case to snake case.
+        """Convert a string from camel case to snake case.
 
         This method takes a camel case string and converts it to snake case.
         For example, 'CamelCase' becomes 'camel_case'.
@@ -72,8 +70,7 @@ class ModelSerializer:
 
     @property
     def spark_schema(self) -> StructType:
-        """
-        Generate a Spark StructType schema for the Pydantic models.
+        """Generate a Spark StructType schema for the Pydantic models.
 
         This property creates a Spark schema that includes two fields:
         one for the main Pydantic model and one for the completion model.

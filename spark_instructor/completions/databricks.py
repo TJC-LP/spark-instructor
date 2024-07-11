@@ -1,5 +1,4 @@
-"""
-This module defines Pydantic models for Databricks' chat completion API responses.
+"""This module defines Pydantic models for Databricks' chat completion API responses.
 
 Databricks uses OpenAI schema.
 """

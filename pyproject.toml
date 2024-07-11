@@ -64,5 +64,8 @@ profile = "black"
 [tool.flake8]
 max-line-length = 120
 
+[tool.pydocstyle]
+convention = "google"
+
 [tool.poetry.scripts]
 lint = "scripts.lint:main"

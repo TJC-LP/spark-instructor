@@ -1,20 +1,17 @@
 repos:
-  - repo: local
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.3.1
     hooks:
-      - id: safety-check
+      - id: python-safety-dependencies-check
         name: Check for package vulnerabilities
-        entry: poetry run safety
-        language: python
-        args: [ check, --full-report, -i, '70612' ]
-        additional_dependencies: [ safety ]
-        pass_filenames: false
+        files: pyproject.toml
+        args: ["--ignore=70612", "--short-report"]
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
         name: Sort package imports
-        args: [--profile, black]
         files: ^(spark_instructor|tests)/
 
   - repo: https://github.com/psf/black
@@ -29,7 +26,6 @@ repos:
     hooks:
       - id: flake8
         additional_dependencies: [Flake8-pyproject==1.2.3]
-        args: [--config, pyproject.toml]
         name: Lint the code
         files: ^(spark_instructor|tests)/
 
@@ -46,16 +42,6 @@ repos:
       - id: pydocstyle
         name: Check for docstring issues
         files: ^spark_instructor/
-
-  - repo: local
-    hooks:
-      - id: pytest-cov
-        name: Run full coverage test suite
-        entry: poetry run pytest
-        language: system
-        args: [--cov=spark_instructor, --cov-report, term-missing]
-        pass_filenames: false
-        always_run: true
 
 default_language_version:
   python: python3

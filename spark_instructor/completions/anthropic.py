@@ -1,5 +1,4 @@
-"""
-This module defines Pydantic models for Anthropic's chat completion API responses.
+"""This module defines Pydantic models for Anthropic's chat completion API responses.
 
 It extends the base models from spark_instructor.completions.base to provide
 specific implementations for Anthropic's API structure. These models can be used
@@ -16,8 +15,7 @@ from spark_instructor.completions.base import BaseCompletion, BaseModel
 
 
 class AnthropicContent(BaseModel):
-    """
-    Represents a content item in an Anthropic chat completion response.
+    """Represents a content item in an Anthropic chat completion response.
 
     Attributes:
         text (str): The text content of the message.
@@ -29,8 +27,7 @@ class AnthropicContent(BaseModel):
 
 
 class AnthropicUsage(BaseModel):
-    """
-    Represents the token usage information for an Anthropic chat completion.
+    """Represents the token usage information for an Anthropic chat completion.
 
     Attributes:
         input_tokens (int): The number of tokens in the input prompt.
@@ -42,8 +39,7 @@ class AnthropicUsage(BaseModel):
 
 
 class AnthropicCompletion(BaseCompletion):
-    """
-    Represents a complete Anthropic chat completion response.
+    """Represents a complete Anthropic chat completion response.
 
     This class extends BaseCompletion to include all fields specific to
     Anthropic's API response structure.
