@@ -4,9 +4,9 @@ This helps Spark understand the schema of our completions, regardless of the mod
 """
 
 from .anthropic import AnthropicCompletion, AnthropicContent, AnthropicUsage
-from .base import BaseChoice, BaseCompletion, BaseMessage, SparkBase, Usage
-from .databricks import DatabricksChoice, DatabricksCompletion, DatabricksMessage
-from .openai import OpenAIChoice, OpenAICompletion, OpenAIMessage
+from .base import BaseCompletion
+from .databricks import DatabricksCompletion
+from .openai import OpenAICompletion
 
 # You can also define __all__ to control what gets imported with "from completions import *"
 __all__ = [
@@ -14,14 +14,6 @@ __all__ = [
     "AnthropicContent",
     "AnthropicUsage",
     "OpenAICompletion",
-    "OpenAIMessage",
-    "OpenAIChoice",
     "DatabricksCompletion",
-    "DatabricksMessage",
-    "DatabricksChoice",
     "BaseCompletion",
-    "BaseMessage",
-    "BaseChoice",
-    "Usage",
-    "SparkBase",
 ]

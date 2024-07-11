@@ -5,14 +5,17 @@ It extends the base models from spark_instructor.completions.base to provide
 specific implementations for Anthropic's API structure. These models can be used
 to parse and validate Anthropic API responses, ensuring type safety and
 providing easy access to response data.
+
+Anthropic's completion models are not serializable out of the box, primarily due to Tools schema.
+We may add support for Anthropic Tools later on.
 """
 
 from typing import List, Optional
 
-from spark_instructor.completions.base import BaseCompletion, SparkBase
+from spark_instructor.completions.base import BaseCompletion, BaseModel
 
 
-class AnthropicContent(SparkBase):
+class AnthropicContent(BaseModel):
     """
     Represents a content item in an Anthropic chat completion response.
 
@@ -25,7 +28,7 @@ class AnthropicContent(SparkBase):
     type: str
 
 
-class AnthropicUsage(SparkBase):
+class AnthropicUsage(BaseModel):
     """
     Represents the token usage information for an Anthropic chat completion.
 
