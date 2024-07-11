@@ -132,11 +132,11 @@ class MessageRouter:
             model=self.model, response_model=self.response_model_type, messages=messages, **kwargs
         )
 
-    def create_object_from_messages_udf(self) -> Callable:
+    def create_object_from_messages_udf(self, **kwargs) -> Callable:
         """Create a Spark UDF which returns a Spark-serializable object response."""
 
         def _func(messages: list[ChatCompletionMessageParam]) -> BaseModel:
-            return self.create_object_from_messages(messages)
+            return self.create_object_from_messages(messages, **kwargs)
 
         schema = self.model_serializer.response_model_spark_schema
 
@@ -156,13 +156,13 @@ class MessageRouter:
         )
         return pydantic_object, completion
 
-    def create_object_and_completion_from_messages_udf(self) -> Callable:
+    def create_object_and_completion_from_messages_udf(self, **kwargs) -> Callable:
         """Create s Spark UDF which returns a Spark-serializable object response."""
 
         def _func(
             messages: list[ChatCompletionMessageParam],
         ) -> Tuple[BaseModel, Union[AnthropicCompletion, DatabricksCompletion, OpenAICompletion]]:
-            return self.create_object_and_completion_from_messages(messages)
+            return self.create_object_and_completion_from_messages(messages, **kwargs)
 
         schema = self.model_serializer.spark_schema
         response_model_name = self.model_serializer.response_model_name
