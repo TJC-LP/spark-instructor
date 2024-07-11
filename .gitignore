@@ -27,3 +27,6 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+# mkdocs documentation
+site/
