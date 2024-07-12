@@ -39,8 +39,10 @@ The following example demonstrates a sample run using the provided `User` model.
 ```python 
 import pyspark.sql.functions as f
 from pyspark.sql import SparkSession
-from spark_instructor.udf import MessageRouter
+
 from spark_instructor.response_models import User
+from spark_instructor.udf import MessageRouter
+from spark_instructor.utils import zero_shot_prompt
 
 # Create spark session 
 spark = SparkSession.builder.getOrCreate()
@@ -57,25 +59,21 @@ data = [
     ("Extract Michael is 42 years old.",),
 ]
 
-df = spark.createDataFrame(data, ["content"])
-
 # Format content as chat messages
-df_with_messages = df.select(
-    "content",
-    f.array(
-        f.create_map(
-            f.lit("role"), f.lit("system"),
-            f.lit("content"), f.lit("You are a helpful assistant.")
-        ),
-        f.create_map(
-            f.lit("role"), f.lit("user"),
-            f.lit("content"), f.col("content")
-        )
-    ).alias("messages")
-).withColumn("response", parser_udf(f.col("messages")))
+df = (
+   spark.createDataFrame(data, ["content"])
+   .withColumn(
+      "messages", 
+      zero_shot_prompt(
+         user_message_column="content", 
+         system_message_column=f.lit("You are a helpful assistant.")
+      )
+   )
+   .withColumn("response", parser_udf(f.col("messages")))
+)
 
 # Run the parser
-result_df = df_with_messages.select(
+result_df = df.select(
     "content",
     "messages",
     f.col("response.*")
