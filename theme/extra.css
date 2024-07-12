@@ -1,0 +1,35 @@
+/* extra.css */
+
+.md-header-nav__title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #012169; /* TJC Blue */
+}
+
+.md-header {
+    background-color: #012169; /* TJC Blue */
+}
+
+/* Styling for the tabs/section below the header */
+.md-tabs {
+    background-color: #307FE2; /* Highlight Blue */
+    color: #FFFFFF; /* White text */
+}
+
+.md-nav__link {
+    color: #012169; /* TJC Blue */
+}
+
+.md-footer {
+    background-color: #D8DFE1; /* Gray tint background */
+    color: #262730; /* Near-black text */
+}
+
+body, input, .md-typeset {
+  font-family: Arial, sans-serif;
+}
+
+.md-content {
+    background-color: #FFFFFF; /* White background for content */
+    color: #262730; /* Near-black text */
+}
