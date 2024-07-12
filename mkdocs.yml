@@ -6,19 +6,19 @@ edit_uri: ""
 
 theme:
   name: "material"
+  custom_dir: theme
+  logo: assets/TJC_White_Logo.svg
+  favicon: assets/TJC_White_Logo.svg
   font:
-    text: Raleway
+    text: "open-sans"
   palette:
     - scheme: default
-      primary: blue grey
-      toggle:
-        icon: material/lightbulb
-        name: Switch to dark mode
-    - scheme: slate
-      primary: blue grey
-      toggle:
-        icon: material/lightbulb-outline
-        name: Switch to light mode
+      primary: "#012169"            # TJC Blue
+      accent: "#307FE2"             # Highlight Blue
+      background: "#FFFFFF"         # White background
+      surface: "#D8DFE1"            # Gray tint for contrast
+      on_primary: "#FFFFFF"         # White text on primary
+      on_surface: "#262730"         # Near-black text color
   icon:
     logo: material/shimmer
     repo: fontawesome/brands/github
@@ -58,3 +58,6 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - admonition
+
+extra_css:
+  - theme/extra.css
