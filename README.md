@@ -29,13 +29,25 @@ This project aims to bridge the gap between large-scale data processing with Apa
 
 1. Run `pip install spark-instructor`, or `pip install spark-instructor[anthropic]` for Anthropic SDK support.
    1. `spark-instructor` must be installed on the Spark driver and workers to generate working UDFs.
-2. Add the necessary environment variables to your spark environment. See the [Spark documentation](https://spark.apache.org/docs/latest/configuration.html#environment-variables) for more details.
+2. Add the necessary environment variables and config to your spark environment (recommended). See the [Spark documentation](https://spark.apache.org/docs/latest/configuration.html#environment-variables) for more details.
    1. For OpenAI support, add `OPENAI_API_KEY=<openai-api-key>`
    2. For Databricks support, add `DATABRICKS_HOST=<databricks-host>` and `DATABRICKS_TOKEN=<databricks-token>`
    3. For Anthropic support, make sure `spark-instructor[anthropic]` is installed and add `ANTHROPIC_API_KEY=<anthropic-api-key>`
+   4. For Ollama support, run [init-ollama](init/init-ollama.sh) as an init script to install `ollama` on all nodes
 
 ## Examples
-The following example demonstrates a sample run using the provided `User` model.
+The following example demonstrates a sample run using the provided `User` model. The `User` model is defined below:
+```python
+from pydantic import BaseModel
+
+
+class User(BaseModel):
+    """A user."""
+
+    name: str
+    age: int
+```
+For proper Spark serialization, we import our Pydantic model so that it is accessible on the Spark workers. See [Limitations](#limitations) for more details.
 ```python 
 import pyspark.sql.functions as f
 from pyspark.sql import SparkSession

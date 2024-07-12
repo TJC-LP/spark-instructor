@@ -4,6 +4,7 @@ import re
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
 
+import instructor
 from instructor import Mode
 from openai.types.chat import ChatCompletionMessageParam
 from pydantic import BaseModel
@@ -97,6 +98,8 @@ class MessageRouter:
     response_model_type: Type[BaseModel]
     model_class: Optional[ModelClass] = None
     mode: Optional[Mode] = None
+    base_url: Optional[str] = None
+    api_key: Optional[str] = None
 
     def __post_init__(self):
         """Get model class from string."""
@@ -122,9 +125,15 @@ class MessageRouter:
         """Get spark schema."""
         return self.model_serializer.spark_schema
 
+    def _get_instructor(self) -> instructor.Instructor:
+        """Get instructor."""
+        return get_instructor(
+            model_class=self.model_class, mode=self.mode, api_key=self.api_key, base_url=self.base_url
+        )
+
     def create_object_from_messages(self, messages: list[ChatCompletionMessageParam], **kwargs) -> BaseModel:
         """Create a pydantic object response from messages."""
-        client = get_instructor(self.model_class, self.mode)
+        client = self._get_instructor()
         return client.chat.completions.create(
             model=self.model, response_model=self.response_model_type, messages=messages, **kwargs
         )
@@ -147,7 +156,7 @@ class MessageRouter:
         self, messages: list[ChatCompletionMessageParam], **kwargs
     ) -> Tuple[BaseModel, Union[AnthropicCompletion, DatabricksCompletion, OpenAICompletion]]:
         """Create an object and completion using the ``instructor`` client."""
-        client = get_instructor(self.model_class, self.mode)
+        client = self._get_instructor()
         pydantic_object, completion = client.chat.completions.create_with_completion(
             model=self.model, response_model=self.response_model_type, messages=messages, **kwargs
         )
