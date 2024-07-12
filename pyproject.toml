@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "spark-instructor"
-version = "0.0.2"
+version = "0.0.3"
 description = "A library for building structured LLM responses with Spark"
 readme = "README.md"
 license = "MIT"
@@ -12,6 +12,9 @@ authors = ["Richie Caputo <rcaputo3@tjclp.com>"]
 classifiers = [
    "License :: OSI Approved :: MIT License",
 ]
+repository = "https://github.com/TJC-LP/spark-instructor"
+homepage = "https://github.com/TJC-LP/spark-instructor"
+documentation = "https://tjc-lp.github.io/spark-instructor/"
 
 [tool.poetry.dependencies]
 python = "^3.10,<4.0.0"
