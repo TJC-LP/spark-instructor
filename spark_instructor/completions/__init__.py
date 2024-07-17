@@ -3,17 +3,18 @@
 This helps Spark understand the schema of our completions, regardless of the model provider.
 """
 
-from .anthropic import AnthropicCompletion, AnthropicContent, AnthropicUsage
+from .anthropic_completions import AnthropicCompletion, AnthropicContent, AnthropicUsage
 from .base import BaseCompletion
-from .databricks import DatabricksCompletion
-from .openai import OpenAICompletion
+from .databricks_completions import DatabricksCompletion
+from .ollama_completions import OllamaCompletion
+from .openai_completions import OpenAICompletion
 
-# You can also define __all__ to control what gets imported with "from completions import *"
 __all__ = [
     "AnthropicCompletion",
     "AnthropicContent",
     "AnthropicUsage",
     "OpenAICompletion",
     "DatabricksCompletion",
+    "OllamaCompletion",
     "BaseCompletion",
 ]

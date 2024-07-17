@@ -3,18 +3,18 @@ import pytest
 from anthropic import Anthropic
 from openai import OpenAI
 
-# Import the functions to be tested
 from spark_instructor.client import (
     ModelClass,
-    assert_env_is_set,
     get_anthropic_client,
     get_databricks_client,
-    get_env_variable,
     get_instructor,
     get_ollama_client,
     get_openai_client,
     infer_model_class,
 )
+
+# Import the functions to be tested
+from spark_instructor.utils import assert_env_is_set, get_env_variable
 
 
 @pytest.fixture

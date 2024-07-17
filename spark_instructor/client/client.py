@@ -3,23 +3,13 @@
 Serves as a workaround for Spark serialization issues.
 """
 
-import os
 from enum import Enum
 from typing import Any, Dict, Optional
 
 import instructor
 from openai import OpenAI
 
-
-def assert_env_is_set(name: str):
-    """Assert that an environment variable is set."""
-    assert name in os.environ, f"``{name}`` is not set!"
-
-
-def get_env_variable(name: str) -> str:
-    """Get environment variable with the given name."""
-    assert_env_is_set(name)
-    return os.environ[name]
+from spark_instructor.utils import assert_env_is_set, get_env_variable
 
 
 def get_databricks_client(

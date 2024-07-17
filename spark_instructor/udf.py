@@ -13,9 +13,9 @@ from pyspark.sql.types import StructField, StructType
 from sparkdantic.model import create_spark_schema
 
 from spark_instructor.client import ModelClass, get_instructor, infer_model_class
-from spark_instructor.completions.anthropic import AnthropicCompletion
-from spark_instructor.completions.databricks import DatabricksCompletion
-from spark_instructor.completions.openai import OpenAICompletion
+from spark_instructor.completions.anthropic_completions import AnthropicCompletion
+from spark_instructor.completions.databricks_completions import DatabricksCompletion
+from spark_instructor.completions.openai_completions import OpenAICompletion
 
 ResponseModel = TypeVar("ResponseModel", bound=BaseModel)
 
