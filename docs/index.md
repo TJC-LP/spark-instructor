@@ -33,7 +33,7 @@ This project aims to bridge the gap between large-scale data processing with Apa
    1. For OpenAI support, add `OPENAI_API_KEY=<openai-api-key>`
    2. For Databricks support, add `DATABRICKS_HOST=<databricks-host>` and `DATABRICKS_TOKEN=<databricks-token>`
    3. For Anthropic support, make sure `spark-instructor[anthropic]` is installed and add `ANTHROPIC_API_KEY=<anthropic-api-key>`
-   4. For Ollama support, run [init-ollama](../init/init-ollama.sh) as an init script to install `ollama` on all nodes
+   4. For Ollama support, run `init/init-ollama.sh` as an init script to install `ollama` on all nodes
 
 ## Examples
 The following example demonstrates a sample run using the provided `User` model. The `User` model is defined below:
