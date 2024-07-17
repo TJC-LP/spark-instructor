@@ -2,7 +2,7 @@
 
 import re
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, Generic, Optional, Tuple, Type, TypeVar, Union
 
 import instructor
 from instructor import Mode
@@ -16,6 +16,8 @@ from spark_instructor.client import ModelClass, get_instructor, infer_model_clas
 from spark_instructor.completions.anthropic import AnthropicCompletion
 from spark_instructor.completions.databricks import DatabricksCompletion
 from spark_instructor.completions.openai import OpenAICompletion
+
+ResponseModel = TypeVar("ResponseModel", bound=BaseModel)
 
 
 @dataclass
@@ -91,24 +93,45 @@ class ModelSerializer:
 
 
 @dataclass
-class MessageRouter:
-    """Wrapper for serializing ``instructor`` calls."""
+class MessageRouter(Generic[ResponseModel]):
+    """A wrapper for serializing ``instructor`` calls and managing model interactions.
+
+    This class provides methods to create Pydantic objects and completions from chat messages,
+    and to generate Spark UDFs for these operations.
+
+    Attributes:
+        model (str): The name of the model to use.
+        response_model_type (Type[ResponseModel]): The Pydantic model type for the response.
+        model_class (Optional[ModelClass]): The class of the model (e.g., ``ModelClass.OPEN_AI``).
+            If not provided, it will be inferred based on the ``model``.
+        mode (Optional[Mode]): The mode for the instructor client.
+        base_url (Optional[str]): The base URL for API calls.
+        api_key (Optional[str]): The API key for authentication.
+    """
 
     model: str
-    response_model_type: Type[BaseModel]
+    response_model_type: Type[ResponseModel]
     model_class: Optional[ModelClass] = None
     mode: Optional[Mode] = None
     base_url: Optional[str] = None
     api_key: Optional[str] = None
 
     def __post_init__(self):
-        """Get model class from string."""
+        """Initialize the ``model_class`` if not provided.
+
+        The ``model_class`` will be inferred based on the ``model`` attribute.
+        """
         if self.model_class is None:
             self.model_class = infer_model_class(self.model)
 
     @property
     def completion_type(self) -> Union[Type[AnthropicCompletion], Type[DatabricksCompletion], Type[OpenAICompletion]]:
-        """Get completion type."""
+        """Get the appropriate completion type based on the ``model_class`` attribute.
+
+        Returns:
+            Union[Type[AnthropicCompletion], Type[DatabricksCompletion], Type[OpenAICompletion]]:
+                The completion type corresponding to the model class.
+        """
         if self.model_class == ModelClass.ANTHROPIC:
             return AnthropicCompletion
         if self.model_class == ModelClass.DATABRICKS:
@@ -117,31 +140,58 @@ class MessageRouter:
 
     @property
     def model_serializer(self) -> ModelSerializer:
-        """Get model serializer."""
+        """Get the model serializer for the response model type and completion type.
+
+        Returns:
+            ModelSerializer: An instance of ModelSerializer.
+        """
         return ModelSerializer(self.response_model_type, self.completion_type)
 
     @property
     def spark_schema(self) -> StructType:
-        """Get spark schema."""
+        """Get the Spark schema for the model.
+
+        Returns:
+            StructType: The Spark schema corresponding to the model.
+        """
         return self.model_serializer.spark_schema
 
-    def _get_instructor(self) -> instructor.Instructor:
-        """Get instructor."""
+    def get_instructor(self) -> instructor.Instructor:
+        """Get an instance of the instructor client.
+
+        Returns:
+            instructor.Instructor: An initialized instructor client.
+        """
         return get_instructor(
             model_class=self.model_class, mode=self.mode, api_key=self.api_key, base_url=self.base_url
         )
 
-    def create_object_from_messages(self, messages: list[ChatCompletionMessageParam], **kwargs) -> BaseModel:
-        """Create a pydantic object response from messages."""
-        client = self._get_instructor()
+    def create_object_from_messages(self, messages: list[ChatCompletionMessageParam], **kwargs: Any) -> ResponseModel:
+        """Create a Pydantic object response from chat messages.
+
+        Args:
+            messages (list[ChatCompletionMessageParam]): The list of chat messages.
+            **kwargs (Any): Additional keyword arguments for the chat completion.
+
+        Returns:
+            ResponseModel: A Pydantic object representing the response.
+        """
+        client = self.get_instructor()
         return client.chat.completions.create(
             model=self.model, response_model=self.response_model_type, messages=messages, **kwargs
         )
 
-    def create_object_from_messages_udf(self, **kwargs) -> Callable:
-        """Create a Spark UDF which returns a Spark-serializable object response."""
+    def create_object_from_messages_udf(self, **kwargs: Any) -> Callable:
+        """Create a Spark UDF that returns a ``StructType`` response based on the ``response_model_type`` attribute.
 
-        def _func(messages: list[ChatCompletionMessageParam]) -> BaseModel:
+        Args:
+            **kwargs (Any): Additional keyword arguments for the chat completion.
+
+        Returns:
+            Callable: A Spark UDF that takes messages and returns a serialized object.
+        """
+
+        def _func(messages: list[ChatCompletionMessageParam]) -> ResponseModel:
             return self.create_object_from_messages(messages, **kwargs)
 
         schema = self.model_serializer.response_model_spark_schema
@@ -153,21 +203,42 @@ class MessageRouter:
         return func
 
     def create_object_and_completion_from_messages(
-        self, messages: list[ChatCompletionMessageParam], **kwargs
-    ) -> Tuple[BaseModel, Union[AnthropicCompletion, DatabricksCompletion, OpenAICompletion]]:
-        """Create an object and completion using the ``instructor`` client."""
-        client = self._get_instructor()
+        self, messages: list[ChatCompletionMessageParam], **kwargs: Any
+    ) -> Tuple[ResponseModel, Union[AnthropicCompletion, DatabricksCompletion, OpenAICompletion]]:
+        """Create a Pydantic object response and completion using the ``instructor`` client.
+
+        The completion will be of the type corresponding to the ``model_class`` attribute.
+
+        Args:
+            messages (list[ChatCompletionMessageParam]): The list of chat messages.
+            **kwargs (Any): Additional keyword arguments for the chat completion.
+
+        Returns:
+            Tuple[ResponseModel, Union[AnthropicCompletion, DatabricksCompletion, OpenAICompletion]]:
+                A tuple containing the Pydantic object and the completion.
+        """
+        client = self.get_instructor()
         pydantic_object, completion = client.chat.completions.create_with_completion(
             model=self.model, response_model=self.response_model_type, messages=messages, **kwargs
         )
         return pydantic_object, completion
 
-    def create_object_and_completion_from_messages_udf(self, **kwargs) -> Callable:
-        """Create s Spark UDF which returns a Spark-serializable object response."""
+    def create_object_and_completion_from_messages_udf(self, **kwargs: Any) -> Callable:
+        """Create a Spark UDF that returns a ``StructType``.
+
+        The response will be based on the ``response_model_type`` and ``model_class`` attributes.
+
+        Args:
+            **kwargs (Any): Additional keyword arguments for the chat completion.
+
+        Returns:
+            Callable: A Spark UDF that takes messages and returns a dictionary with
+                      serialized object and completion.
+        """
 
         def _func(
             messages: list[ChatCompletionMessageParam],
-        ) -> Tuple[BaseModel, Union[AnthropicCompletion, DatabricksCompletion, OpenAICompletion]]:
+        ) -> Tuple[ResponseModel, Union[AnthropicCompletion, DatabricksCompletion, OpenAICompletion]]:
             return self.create_object_and_completion_from_messages(messages, **kwargs)
 
         schema = self.model_serializer.spark_schema
