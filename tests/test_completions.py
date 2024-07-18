@@ -1,3 +1,5 @@
+import pytest
+
 from spark_instructor.completions import (
     AnthropicCompletion,
     DatabricksCompletion,
@@ -7,7 +9,6 @@ from spark_instructor.completions.anthropic_completions import (
     Message,
     transform_message_to_chat_completion,
 )
-import pytest
 
 
 @pytest.fixture
