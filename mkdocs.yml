@@ -6,7 +6,6 @@ edit_uri: ""
 
 theme:
   name: "material"
-  custom_dir: theme
   logo: assets/TJC_White_Logo.svg
   favicon: assets/TJC_White_Logo.svg
   font:
