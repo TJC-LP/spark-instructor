@@ -3,6 +3,66 @@ from spark_instructor.completions import (
     DatabricksCompletion,
     OpenAICompletion,
 )
+from spark_instructor.completions.anthropic_completions import (
+    Message,
+    transform_message_to_chat_completion,
+)
+import pytest
+
+
+@pytest.fixture
+def anthropic_tools_message() -> Message:
+    raw_tools_message = {
+        "id": "msg_01KF8Mhuze5KccdvbCT9ebrB",
+        "content": [
+            {
+                "id": "toolu_01NtJx2hrzLJMR3vZF1xUw6t",
+                "input": {"name": "<UNKNOWN>", "age": 30},
+                "name": "User",
+                "type": "tool_use",
+            }
+        ],
+        "model": "claude-3-5-sonnet-20240620",
+        "role": "assistant",
+        "stop_reason": "tool_use",
+        "stop_sequence": None,
+        "type": "message",
+        "usage": {"input_tokens": 919, "output_tokens": 102},
+    }
+    return Message(**raw_tools_message)
+
+
+def test_anthropic_converstion(anthropic_tools_message):
+    transformed_message = transform_message_to_chat_completion(anthropic_tools_message)
+    assert isinstance(transformed_message, OpenAICompletion)
+    assert transformed_message.model_dump() == {
+        "choices": [
+            {
+                "finish_reason": "tool_calls",
+                "index": 0,
+                "logprobs": None,
+                "message": {
+                    "content": "[Tool Use: User]",
+                    "function_call": None,
+                    "role": "assistant",
+                    "tool_calls": [
+                        {
+                            "function": {"arguments": '{"name": ' '"<UNKNOWN>", ' '"age": ' "30}", "name": "User"},
+                            "id": "toolu_01NtJx2hrzLJMR3vZF1xUw6t",
+                            "type": "function",
+                        }
+                    ],
+                },
+            }
+        ],
+        "created": 0,
+        "id": "msg_01KF8Mhuze5KccdvbCT9ebrB",
+        "model": "claude-3-5-sonnet-20240620",
+        "object": "chat.completion",
+        "service_tier": None,
+        "system_fingerprint": None,
+        "usage": {"completion_tokens": 102, "prompt_tokens": 919, "total_tokens": 1021},
+    }
 
 
 def test_anthropic_completion():
