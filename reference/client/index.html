@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/TJC_White_Logo.svg">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.28">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.76a95c52.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -468,6 +468,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#client.assert_env_is_set" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_env_is_set
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#client.get_anthropic_client" class="md-nav__link">
     <span class="md-ellipsis">
       get_anthropic_client
@@ -486,9 +495,27 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#client.get_env_variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_env_variable
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#client.get_instructor" class="md-nav__link">
     <span class="md-ellipsis">
       get_instructor
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#client.get_ollama_client" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_ollama_client
     </span>
   </a>
   
@@ -856,6 +883,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#client.assert_env_is_set" class="md-nav__link">
+    <span class="md-ellipsis">
+      assert_env_is_set
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#client.get_anthropic_client" class="md-nav__link">
     <span class="md-ellipsis">
       get_anthropic_client
@@ -874,9 +910,27 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#client.get_env_variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_env_variable
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#client.get_instructor" class="md-nav__link">
     <span class="md-ellipsis">
       get_instructor
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#client.get_ollama_client" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_ollama_client
     </span>
   </a>
   
@@ -958,17 +1012,19 @@
 
               <details class="quote">
                 <summary>Source code in <code>spark_instructor\client.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span>
-<span class="normal"><a href="#__codelineno-0-55">55</a></span>
-<span class="normal"><a href="#__codelineno-0-56">56</a></span>
-<span class="normal"><a href="#__codelineno-0-57">57</a></span>
-<span class="normal"><a href="#__codelineno-0-58">58</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="k">class</span> <span class="nc">ModelClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of available model classes.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55"></a>
-<a id="__codelineno-0-56" name="__codelineno-0-56"></a>    <span class="n">OPENAI</span> <span class="o">=</span> <span class="s2">&quot;openai&quot;</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a>    <span class="n">ANTHROPIC</span> <span class="o">=</span> <span class="s2">&quot;anthropic&quot;</span>
-<a id="__codelineno-0-58" name="__codelineno-0-58"></a>    <span class="n">DATABRICKS</span> <span class="o">=</span> <span class="s2">&quot;databricks&quot;</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-91">91</a></span>
+<span class="normal"><a href="#__codelineno-0-92">92</a></span>
+<span class="normal"><a href="#__codelineno-0-93">93</a></span>
+<span class="normal"><a href="#__codelineno-0-94">94</a></span>
+<span class="normal"><a href="#__codelineno-0-95">95</a></span>
+<span class="normal"><a href="#__codelineno-0-96">96</a></span>
+<span class="normal"><a href="#__codelineno-0-97">97</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="k">class</span> <span class="nc">ModelClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<a id="__codelineno-0-92" name="__codelineno-0-92"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of available model classes.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-93" name="__codelineno-0-93"></a>
+<a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="n">OPENAI</span> <span class="o">=</span> <span class="s2">&quot;openai&quot;</span>
+<a id="__codelineno-0-95" name="__codelineno-0-95"></a>    <span class="n">ANTHROPIC</span> <span class="o">=</span> <span class="s2">&quot;anthropic&quot;</span>
+<a id="__codelineno-0-96" name="__codelineno-0-96"></a>    <span class="n">DATABRICKS</span> <span class="o">=</span> <span class="s2">&quot;databricks&quot;</span>
+<a id="__codelineno-0-97" name="__codelineno-0-97"></a>    <span class="n">OLLAMA</span> <span class="o">=</span> <span class="s2">&quot;ollama&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -996,8 +1052,34 @@
 <div class="doc doc-object doc-function">
 
 
+<h2 id="client.assert_env_is_set" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">assert_env_is_set</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Assert that an environment variable is set.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>spark_instructor\client.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">def</span> <span class="nf">assert_env_is_set</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Assert that an environment variable is set.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a>    <span class="k">assert</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;``</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">`` is not set!&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="client.get_anthropic_client" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_anthropic_client</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">ANTHROPIC_JSON</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_anthropic_client</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">ANTHROPIC_JSON</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -1009,35 +1091,47 @@
 
             <details class="quote">
               <summary>Source code in <code>spark_instructor\client.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-36">36</a></span>
-<span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span>
-<span class="normal"><a href="#__codelineno-0-39">39</a></span>
-<span class="normal"><a href="#__codelineno-0-40">40</a></span>
-<span class="normal"><a href="#__codelineno-0-41">41</a></span>
-<span class="normal"><a href="#__codelineno-0-42">42</a></span>
-<span class="normal"><a href="#__codelineno-0-43">43</a></span>
-<span class="normal"><a href="#__codelineno-0-44">44</a></span>
-<span class="normal"><a href="#__codelineno-0-45">45</a></span>
-<span class="normal"><a href="#__codelineno-0-46">46</a></span>
-<span class="normal"><a href="#__codelineno-0-47">47</a></span>
-<span class="normal"><a href="#__codelineno-0-48">48</a></span>
-<span class="normal"><a href="#__codelineno-0-49">49</a></span>
-<span class="normal"><a href="#__codelineno-0-50">50</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="k">def</span> <span class="nf">get_anthropic_client</span><span class="p">(</span><span class="n">mode</span><span class="p">:</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">ANTHROPIC_JSON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Instructor</span><span class="p">:</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the Anthropic client.</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">    Ensure that ``ANTHROPIC_API_KEY`` is set.</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a>        <span class="kn">from</span> <span class="nn">anthropic</span> <span class="kn">import</span> <span class="n">Anthropic</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a>            <span class="s2">&quot;Please install ``anthropic`` by running ``pip install anthropic`` &quot;</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a>            <span class="s2">&quot;or ``pip install spark-instructor[anthropic]``&quot;</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="p">)</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="k">assert</span> <span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span> <span class="s2">&quot;``ANTHROPIC_API_KEY`` is not set!&quot;</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="k">return</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_anthropic</span><span class="p">(</span><span class="n">Anthropic</span><span class="p">(),</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-57">57</a></span>
+<span class="normal"><a href="#__codelineno-0-58">58</a></span>
+<span class="normal"><a href="#__codelineno-0-59">59</a></span>
+<span class="normal"><a href="#__codelineno-0-60">60</a></span>
+<span class="normal"><a href="#__codelineno-0-61">61</a></span>
+<span class="normal"><a href="#__codelineno-0-62">62</a></span>
+<span class="normal"><a href="#__codelineno-0-63">63</a></span>
+<span class="normal"><a href="#__codelineno-0-64">64</a></span>
+<span class="normal"><a href="#__codelineno-0-65">65</a></span>
+<span class="normal"><a href="#__codelineno-0-66">66</a></span>
+<span class="normal"><a href="#__codelineno-0-67">67</a></span>
+<span class="normal"><a href="#__codelineno-0-68">68</a></span>
+<span class="normal"><a href="#__codelineno-0-69">69</a></span>
+<span class="normal"><a href="#__codelineno-0-70">70</a></span>
+<span class="normal"><a href="#__codelineno-0-71">71</a></span>
+<span class="normal"><a href="#__codelineno-0-72">72</a></span>
+<span class="normal"><a href="#__codelineno-0-73">73</a></span>
+<span class="normal"><a href="#__codelineno-0-74">74</a></span>
+<span class="normal"><a href="#__codelineno-0-75">75</a></span>
+<span class="normal"><a href="#__codelineno-0-76">76</a></span>
+<span class="normal"><a href="#__codelineno-0-77">77</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="k">def</span> <span class="nf">get_anthropic_client</span><span class="p">(</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58"></a>    <span class="n">mode</span><span class="p">:</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">ANTHROPIC_JSON</span><span class="p">,</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59"></a>    <span class="n">base_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60"></a>    <span class="n">api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Instructor</span><span class="p">:</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the Anthropic client.</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63"></a>
+<a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">    Ensure that ``ANTHROPIC_API_KEY`` is set.</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67"></a>        <span class="kn">from</span> <span class="nn">anthropic</span> <span class="kn">import</span> <span class="n">Anthropic</span>
+<a id="__codelineno-0-68" name="__codelineno-0-68"></a>    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+<a id="__codelineno-0-69" name="__codelineno-0-69"></a>        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+<a id="__codelineno-0-70" name="__codelineno-0-70"></a>            <span class="s2">&quot;Please install ``anthropic`` by running ``pip install anthropic`` &quot;</span>
+<a id="__codelineno-0-71" name="__codelineno-0-71"></a>            <span class="s2">&quot;or ``pip install spark-instructor[anthropic]``&quot;</span>
+<a id="__codelineno-0-72" name="__codelineno-0-72"></a>        <span class="p">)</span>
+<a id="__codelineno-0-73" name="__codelineno-0-73"></a>
+<a id="__codelineno-0-74" name="__codelineno-0-74"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">api_key</span><span class="p">:</span>
+<a id="__codelineno-0-75" name="__codelineno-0-75"></a>        <span class="n">assert_env_is_set</span><span class="p">(</span><span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-76" name="__codelineno-0-76"></a>        <span class="k">return</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_anthropic</span><span class="p">(</span><span class="n">Anthropic</span><span class="p">(),</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+<a id="__codelineno-0-77" name="__codelineno-0-77"></a>    <span class="k">return</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_anthropic</span><span class="p">(</span><span class="n">Anthropic</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1048,7 +1142,7 @@
 
 
 <h2 id="client.get_databricks_client" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_databricks_client</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">MD_JSON</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_databricks_client</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">MD_JSON</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -1056,31 +1150,70 @@
     <div class="doc doc-contents ">
 
       <p>Get the databricks client.</p>
-<p>Ensure that the <code>DATABRICKS_HOST</code> and <code>DATABRICKS_TOKEN</code> environment variables are set.</p>
+<p>Unless passed as arguments,
+ensure that the <code>DATABRICKS_HOST</code> and <code>DATABRICKS_TOKEN</code> environment variables are set.</p>
 
             <details class="quote">
               <summary>Source code in <code>spark_instructor\client.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-14">14</a></span>
-<span class="normal"><a href="#__codelineno-0-15">15</a></span>
-<span class="normal"><a href="#__codelineno-0-16">16</a></span>
-<span class="normal"><a href="#__codelineno-0-17">17</a></span>
-<span class="normal"><a href="#__codelineno-0-18">18</a></span>
-<span class="normal"><a href="#__codelineno-0-19">19</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span>
+<span class="normal"><a href="#__codelineno-0-31">31</a></span>
+<span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
+<span class="normal"><a href="#__codelineno-0-36">36</a></span>
+<span class="normal"><a href="#__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="k">def</span> <span class="nf">get_databricks_client</span><span class="p">(</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a>    <span class="n">mode</span><span class="p">:</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">MD_JSON</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Instructor</span><span class="p">:</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the databricks client.</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">    Unless passed as arguments,</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">    ensure that the ``DATABRICKS_HOST`` and ``DATABRICKS_TOKEN`` environment variables are set.</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="k">if</span> <span class="n">base_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a>        <span class="n">base_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">get_env_variable</span><span class="p">(</span><span class="s1">&#39;DATABRICKS_HOST&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/serving-endpoints&quot;</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="k">if</span> <span class="n">api_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="n">api_key</span> <span class="o">=</span> <span class="n">get_env_variable</span><span class="p">(</span><span class="s2">&quot;DATABRICKS_TOKEN&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="k">return</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_openai</span><span class="p">(</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>        <span class="n">OpenAI</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">),</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a>        <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="client.get_env_variable" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_env_variable</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Get environment variable with the given name.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>spark_instructor\client.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-19">19</a></span>
 <span class="normal"><a href="#__codelineno-0-20">20</a></span>
 <span class="normal"><a href="#__codelineno-0-21">21</a></span>
-<span class="normal"><a href="#__codelineno-0-22">22</a></span>
-<span class="normal"><a href="#__codelineno-0-23">23</a></span>
-<span class="normal"><a href="#__codelineno-0-24">24</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">def</span> <span class="nf">get_databricks_client</span><span class="p">(</span><span class="n">mode</span><span class="p">:</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">MD_JSON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Instructor</span><span class="p">:</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the databricks client.</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16"></a>
-<a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="sd">    Ensure that the ``DATABRICKS_HOST`` and ``DATABRICKS_TOKEN`` environment variables are set.</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a>    <span class="k">assert</span> <span class="s2">&quot;DATABRICKS_HOST&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span> <span class="s2">&quot;``DATABRICKS_HOST`` is not set!&quot;</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a>    <span class="k">assert</span> <span class="s2">&quot;DATABRICKS_TOKEN&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span> <span class="s2">&quot;``DATABRICKS_TOKEN`` is not set!&quot;</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="k">return</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_openai</span><span class="p">(</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22"></a>        <span class="n">OpenAI</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DATABRICKS_TOKEN&quot;</span><span class="p">),</span> <span class="n">base_url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DATABRICKS_HOST&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">/serving-endpoints&quot;</span><span class="p">),</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23"></a>        <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="k">def</span> <span class="nf">get_env_variable</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get environment variable with the given name.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="n">assert_env_is_set</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a>    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1091,7 +1224,7 @@
 
 
 <h2 id="client.get_instructor" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_instructor</span><span class="p">(</span><span class="n">model_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_instructor</span><span class="p">(</span><span class="n">model_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -1102,21 +1235,71 @@
 
             <details class="quote">
               <summary>Source code in <code>spark_instructor\client.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-79">79</a></span>
-<span class="normal"><a href="#__codelineno-0-80">80</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-121">121</a></span>
+<span class="normal"><a href="#__codelineno-0-122">122</a></span>
+<span class="normal"><a href="#__codelineno-0-123">123</a></span>
+<span class="normal"><a href="#__codelineno-0-124">124</a></span>
+<span class="normal"><a href="#__codelineno-0-125">125</a></span>
+<span class="normal"><a href="#__codelineno-0-126">126</a></span>
+<span class="normal"><a href="#__codelineno-0-127">127</a></span>
+<span class="normal"><a href="#__codelineno-0-128">128</a></span>
+<span class="normal"><a href="#__codelineno-0-129">129</a></span>
+<span class="normal"><a href="#__codelineno-0-130">130</a></span>
+<span class="normal"><a href="#__codelineno-0-131">131</a></span>
+<span class="normal"><a href="#__codelineno-0-132">132</a></span>
+<span class="normal"><a href="#__codelineno-0-133">133</a></span>
+<span class="normal"><a href="#__codelineno-0-134">134</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="k">def</span> <span class="nf">get_instructor</span><span class="p">(</span>
+<a id="__codelineno-0-122" name="__codelineno-0-122"></a>    <span class="n">model_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelClass</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-123" name="__codelineno-0-123"></a>    <span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-124" name="__codelineno-0-124"></a>    <span class="n">api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-125" name="__codelineno-0-125"></a>    <span class="n">base_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-126" name="__codelineno-0-126"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Instructor</span><span class="p">:</span>
+<a id="__codelineno-0-127" name="__codelineno-0-127"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the instructor client based on the model class and mode.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-128" name="__codelineno-0-128"></a>    <span class="k">if</span> <span class="n">model_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-129" name="__codelineno-0-129"></a>        <span class="c1"># Use OpenAI by default</span>
+<a id="__codelineno-0-130" name="__codelineno-0-130"></a>        <span class="n">model_class</span> <span class="o">=</span> <span class="n">ModelClass</span><span class="o">.</span><span class="n">OPENAI</span>
+<a id="__codelineno-0-131" name="__codelineno-0-131"></a>    <span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">)</span>
+<a id="__codelineno-0-132" name="__codelineno-0-132"></a>    <span class="k">if</span> <span class="n">mode</span><span class="p">:</span>
+<a id="__codelineno-0-133" name="__codelineno-0-133"></a>        <span class="n">kwargs</span> <span class="o">|=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+<a id="__codelineno-0-134" name="__codelineno-0-134"></a>    <span class="k">return</span> <span class="n">MODEL_CLASS_ROUTE</span><span class="p">[</span><span class="n">model_class</span><span class="p">](</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="client.get_ollama_client" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">get_ollama_client</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">JSON</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Get the Ollama client.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>spark_instructor\client.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-80">80</a></span>
 <span class="normal"><a href="#__codelineno-0-81">81</a></span>
 <span class="normal"><a href="#__codelineno-0-82">82</a></span>
 <span class="normal"><a href="#__codelineno-0-83">83</a></span>
 <span class="normal"><a href="#__codelineno-0-84">84</a></span>
 <span class="normal"><a href="#__codelineno-0-85">85</a></span>
-<span class="normal"><a href="#__codelineno-0-86">86</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="k">def</span> <span class="nf">get_instructor</span><span class="p">(</span>
-<a id="__codelineno-0-80" name="__codelineno-0-80"></a>    <span class="n">model_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelClass</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Instructor</span><span class="p">:</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the instructor client based on the model class and mode.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-83" name="__codelineno-0-83"></a>    <span class="k">if</span> <span class="n">model_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a>        <span class="c1"># Use OpenAI by default</span>
-<a id="__codelineno-0-85" name="__codelineno-0-85"></a>        <span class="n">model_class</span> <span class="o">=</span> <span class="n">ModelClass</span><span class="o">.</span><span class="n">OPENAI</span>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a>    <span class="k">return</span> <span class="n">MODEL_CLASS_ROUTE</span><span class="p">[</span><span class="n">model_class</span><span class="p">]()</span> <span class="k">if</span> <span class="n">mode</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">MODEL_CLASS_ROUTE</span><span class="p">[</span><span class="n">model_class</span><span class="p">](</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-86">86</a></span>
+<span class="normal"><a href="#__codelineno-0-87">87</a></span>
+<span class="normal"><a href="#__codelineno-0-88">88</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="k">def</span> <span class="nf">get_ollama_client</span><span class="p">(</span>
+<a id="__codelineno-0-81" name="__codelineno-0-81"></a>    <span class="n">mode</span><span class="p">:</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">JSON</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Instructor</span><span class="p">:</span>
+<a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the Ollama client.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-84" name="__codelineno-0-84"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">base_url</span><span class="p">:</span>
+<a id="__codelineno-0-85" name="__codelineno-0-85"></a>        <span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:11434&quot;</span>
+<a id="__codelineno-0-86" name="__codelineno-0-86"></a>        <span class="n">base_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">/v1&quot;</span>
+<a id="__codelineno-0-87" name="__codelineno-0-87"></a>
+<a id="__codelineno-0-88" name="__codelineno-0-88"></a>    <span class="k">return</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_openai</span><span class="p">(</span><span class="n">OpenAI</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;ollama&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">api_key</span> <span class="k">else</span> <span class="n">api_key</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1127,7 +1310,7 @@
 
 
 <h2 id="client.get_openai_client" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get_openai_client</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">TOOLS</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">get_openai_client</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">TOOLS</span><span class="p">,</span> <span class="n">base_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -1135,23 +1318,34 @@
     <div class="doc doc-contents ">
 
       <p>Get the OpenAI client.</p>
-<p>Ensure that <code>OPENAI_API_KEY</code> is set.</p>
+<p>Unless passes as an argument,
+Ensure that <code>OPENAI_API_KEY</code> is set.</p>
 
             <details class="quote">
               <summary>Source code in <code>spark_instructor\client.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-27">27</a></span>
-<span class="normal"><a href="#__codelineno-0-28">28</a></span>
-<span class="normal"><a href="#__codelineno-0-29">29</a></span>
-<span class="normal"><a href="#__codelineno-0-30">30</a></span>
-<span class="normal"><a href="#__codelineno-0-31">31</a></span>
-<span class="normal"><a href="#__codelineno-0-32">32</a></span>
-<span class="normal"><a href="#__codelineno-0-33">33</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="k">def</span> <span class="nf">get_openai_client</span><span class="p">(</span><span class="n">mode</span><span class="p">:</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">TOOLS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Instructor</span><span class="p">:</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the OpenAI client.</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29"></a>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">    Ensure that ``OPENAI_API_KEY`` is set.</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32"></a>    <span class="k">assert</span> <span class="s2">&quot;OPENAI_API_KEY&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span> <span class="s2">&quot;``OPENAI_API_KEY`` is not set!&quot;</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="k">return</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_openai</span><span class="p">(</span><span class="n">OpenAI</span><span class="p">(),</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#__codelineno-0-49">49</a></span>
+<span class="normal"><a href="#__codelineno-0-50">50</a></span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span>
+<span class="normal"><a href="#__codelineno-0-52">52</a></span>
+<span class="normal"><a href="#__codelineno-0-53">53</a></span>
+<span class="normal"><a href="#__codelineno-0-54">54</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="k">def</span> <span class="nf">get_openai_client</span><span class="p">(</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="n">mode</span><span class="p">:</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Mode</span><span class="o">.</span><span class="n">TOOLS</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">instructor</span><span class="o">.</span><span class="n">Instructor</span><span class="p">:</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the OpenAI client.</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="sd">    Unless passes as an argument,</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">    Ensure that ``OPENAI_API_KEY`` is set.</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">api_key</span><span class="p">:</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52"></a>        <span class="n">assert_env_is_set</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="k">return</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_openai</span><span class="p">(</span><span class="n">OpenAI</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="k">return</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_openai</span><span class="p">(</span><span class="n">OpenAI</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1173,23 +1367,27 @@
 
             <details class="quote">
               <summary>Source code in <code>spark_instructor\client.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-61">61</a></span>
-<span class="normal"><a href="#__codelineno-0-62">62</a></span>
-<span class="normal"><a href="#__codelineno-0-63">63</a></span>
-<span class="normal"><a href="#__codelineno-0-64">64</a></span>
-<span class="normal"><a href="#__codelineno-0-65">65</a></span>
-<span class="normal"><a href="#__codelineno-0-66">66</a></span>
-<span class="normal"><a href="#__codelineno-0-67">67</a></span>
-<span class="normal"><a href="#__codelineno-0-68">68</a></span>
-<span class="normal"><a href="#__codelineno-0-69">69</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="k">def</span> <span class="nf">infer_model_class</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelClass</span><span class="p">:</span>
-<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Attempt to infer the model class from the model name.&quot;&quot;&quot;</span>
-<a id="__codelineno-0-63" name="__codelineno-0-63"></a>    <span class="k">if</span> <span class="s2">&quot;databricks&quot;</span> <span class="ow">in</span> <span class="n">model_name</span><span class="p">:</span>
-<a id="__codelineno-0-64" name="__codelineno-0-64"></a>        <span class="k">return</span> <span class="n">ModelClass</span><span class="o">.</span><span class="n">DATABRICKS</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a>    <span class="k">elif</span> <span class="s2">&quot;gpt&quot;</span> <span class="ow">in</span> <span class="n">model_name</span><span class="p">:</span>
-<a id="__codelineno-0-66" name="__codelineno-0-66"></a>        <span class="k">return</span> <span class="n">ModelClass</span><span class="o">.</span><span class="n">OPENAI</span>
-<a id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="k">elif</span> <span class="s2">&quot;claude&quot;</span> <span class="ow">in</span> <span class="n">model_name</span><span class="p">:</span>
-<a id="__codelineno-0-68" name="__codelineno-0-68"></a>        <span class="k">return</span> <span class="n">ModelClass</span><span class="o">.</span><span class="n">ANTHROPIC</span>
-<a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model name `</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">` does not match any of the available model classes.&quot;</span><span class="p">)</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-100">100</a></span>
+<span class="normal"><a href="#__codelineno-0-101">101</a></span>
+<span class="normal"><a href="#__codelineno-0-102">102</a></span>
+<span class="normal"><a href="#__codelineno-0-103">103</a></span>
+<span class="normal"><a href="#__codelineno-0-104">104</a></span>
+<span class="normal"><a href="#__codelineno-0-105">105</a></span>
+<span class="normal"><a href="#__codelineno-0-106">106</a></span>
+<span class="normal"><a href="#__codelineno-0-107">107</a></span>
+<span class="normal"><a href="#__codelineno-0-108">108</a></span>
+<span class="normal"><a href="#__codelineno-0-109">109</a></span>
+<span class="normal"><a href="#__codelineno-0-110">110</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="k">def</span> <span class="nf">infer_model_class</span><span class="p">(</span><span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelClass</span><span class="p">:</span>
+<a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Attempt to infer the model class from the model name.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-102" name="__codelineno-0-102"></a>    <span class="k">if</span> <span class="s2">&quot;databricks&quot;</span> <span class="ow">in</span> <span class="n">model_name</span><span class="p">:</span>
+<a id="__codelineno-0-103" name="__codelineno-0-103"></a>        <span class="k">return</span> <span class="n">ModelClass</span><span class="o">.</span><span class="n">DATABRICKS</span>
+<a id="__codelineno-0-104" name="__codelineno-0-104"></a>    <span class="k">elif</span> <span class="s2">&quot;gpt&quot;</span> <span class="ow">in</span> <span class="n">model_name</span><span class="p">:</span>
+<a id="__codelineno-0-105" name="__codelineno-0-105"></a>        <span class="k">return</span> <span class="n">ModelClass</span><span class="o">.</span><span class="n">OPENAI</span>
+<a id="__codelineno-0-106" name="__codelineno-0-106"></a>    <span class="k">elif</span> <span class="s2">&quot;claude&quot;</span> <span class="ow">in</span> <span class="n">model_name</span><span class="p">:</span>
+<a id="__codelineno-0-107" name="__codelineno-0-107"></a>        <span class="k">return</span> <span class="n">ModelClass</span><span class="o">.</span><span class="n">ANTHROPIC</span>
+<a id="__codelineno-0-108" name="__codelineno-0-108"></a>    <span class="k">elif</span> <span class="s2">&quot;llama&quot;</span> <span class="ow">in</span> <span class="n">model_name</span><span class="p">:</span>
+<a id="__codelineno-0-109" name="__codelineno-0-109"></a>        <span class="k">return</span> <span class="n">ModelClass</span><span class="o">.</span><span class="n">OLLAMA</span>
+<a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model name `</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">` does not match any of the available model classes.&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
