@@ -5,8 +5,10 @@ from pydantic import BaseModel
 from pyspark.sql.types import IntegerType, StringType, StructType
 
 from spark_instructor.client import MODEL_CLASS_ROUTE, ModelClass
-from spark_instructor.udf import MessageRouter, ModelSerializer, OpenAICompletion
-from spark_instructor.utils import zero_shot_prompt
+from spark_instructor.completions import OpenAICompletion
+from spark_instructor.udf import MessageRouter
+from spark_instructor.udf.message_router import ModelSerializer
+from spark_instructor.utils.prompt import zero_shot_prompt
 
 
 # Mock classes for testing
@@ -97,6 +99,7 @@ def mock_openai_completion():
                         "content": None,
                         "role": "assistant",
                         "function_call": None,
+                        "refusal": None,
                         "tool_calls": [
                             {
                                 "id": "call_FZ3fXr1wUlJvV2hvRY7EzdA5",
@@ -349,7 +352,79 @@ def test_create_object_and_completion_from_messages_udf(spark, mock_model_class_
                                                                         },
                                                                         "type": "array",
                                                                     },
-                                                                }
+                                                                },
+                                                                {
+                                                                    "metadata": {},
+                                                                    "name": "refusal",
+                                                                    "nullable": True,
+                                                                    "type": {
+                                                                        "containsNull": True,
+                                                                        "elementType": {
+                                                                            "fields": [
+                                                                                {
+                                                                                    "metadata": {},
+                                                                                    "name": "token",
+                                                                                    "nullable": False,
+                                                                                    "type": "string",
+                                                                                },
+                                                                                {
+                                                                                    "metadata": {},
+                                                                                    "name": "bytes",
+                                                                                    "nullable": True,
+                                                                                    "type": {
+                                                                                        "containsNull": False,
+                                                                                        "elementType": "integer",
+                                                                                        "type": "array",
+                                                                                    },
+                                                                                },
+                                                                                {
+                                                                                    "metadata": {},
+                                                                                    "name": "logprob",
+                                                                                    "nullable": False,
+                                                                                    "type": "double",
+                                                                                },
+                                                                                {
+                                                                                    "metadata": {},
+                                                                                    "name": "top_logprobs",
+                                                                                    "nullable": False,
+                                                                                    "type": {
+                                                                                        "containsNull": False,
+                                                                                        "elementType": {
+                                                                                            "fields": [
+                                                                                                {
+                                                                                                    "metadata": {},
+                                                                                                    "name": "token",
+                                                                                                    "nullable": False,
+                                                                                                    "type": "string",
+                                                                                                },
+                                                                                                {
+                                                                                                    "metadata": {},
+                                                                                                    "name": "bytes",
+                                                                                                    "nullable": True,
+                                                                                                    "type": {
+                                                                                                        "containsNull": False,  # noqa: E501
+                                                                                                        "elementType": "integer",  # noqa: E501
+                                                                                                        "type": "array",
+                                                                                                    },
+                                                                                                },
+                                                                                                {
+                                                                                                    "metadata": {},
+                                                                                                    "name": "logprob",
+                                                                                                    "nullable": False,
+                                                                                                    "type": "double",
+                                                                                                },
+                                                                                            ],
+                                                                                            "type": "struct",
+                                                                                        },
+                                                                                        "type": "array",
+                                                                                    },
+                                                                                },
+                                                                            ],
+                                                                            "type": "struct",
+                                                                        },
+                                                                        "type": "array",
+                                                                    },
+                                                                },
                                                             ],
                                                             "type": "struct",
                                                         },
@@ -363,6 +438,12 @@ def test_create_object_and_completion_from_messages_udf(spark, mock_model_class_
                                                                 {
                                                                     "metadata": {},
                                                                     "name": "content",
+                                                                    "nullable": True,
+                                                                    "type": "string",
+                                                                },
+                                                                {
+                                                                    "metadata": {},
+                                                                    "name": "refusal",
                                                                     "nullable": True,
                                                                     "type": "string",
                                                                 },

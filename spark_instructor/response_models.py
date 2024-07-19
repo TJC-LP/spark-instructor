@@ -8,3 +8,9 @@ class User(BaseModel):
 
     name: str
     age: int
+
+
+class TextResponse(BaseModel):
+    """A text response."""
+
+    text: str

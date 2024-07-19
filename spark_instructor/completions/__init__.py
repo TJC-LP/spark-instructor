@@ -3,7 +3,12 @@
 This helps Spark understand the schema of our completions, regardless of the model provider.
 """
 
-from .anthropic_completions import AnthropicCompletion, AnthropicContent, AnthropicUsage
+from .anthropic_completions import (
+    AnthropicCompletion,
+    AnthropicContent,
+    AnthropicUsage,
+    transform_message_to_chat_completion,
+)
 from .base import BaseCompletion
 from .databricks_completions import DatabricksCompletion
 from .ollama_completions import OllamaCompletion
@@ -17,4 +22,5 @@ __all__ = [
     "DatabricksCompletion",
     "OllamaCompletion",
     "BaseCompletion",
+    "transform_message_to_chat_completion",
 ]

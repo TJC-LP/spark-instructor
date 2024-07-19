@@ -10,6 +10,7 @@ We may add support for Anthropic Tools later on.
 """
 
 import json
+import time
 from typing import List, Literal, Optional, cast
 
 from anthropic.types import Message
@@ -25,11 +26,6 @@ from openai.types.chat.chat_completion_message_tool_call import Function
 from openai.types.completion_usage import CompletionUsage
 
 from spark_instructor.completions.base import BaseCompletion, BaseModel
-
-# print("Schema to transform:")
-# print(Message.schema_json(indent=2))
-# print("Schema to match:")
-# print(ChatCompletion.schema_json(indent=2))
 
 FinishReason = Literal["stop", "length", "tool_calls", "content_filter", "function_call"]
 
@@ -81,7 +77,16 @@ class AnthropicCompletion(BaseCompletion):
     usage: AnthropicUsage
 
 
-def transform_message_to_chat_completion(message: Message) -> ChatCompletion:
+def anthropic_tool_call_to_openai_tool_call(block: ToolUseBlock) -> ChatCompletionMessageToolCall:
+    """Convert an Anthropic tool call to an OpenAI tool call."""
+    return ChatCompletionMessageToolCall(
+        id=block.id,
+        function=Function(name=block.name, arguments=json.dumps(block.input)),
+        type="function",
+    )
+
+
+def transform_message_to_chat_completion(message: Message, enable_created_at: bool = False) -> ChatCompletion:
     """Transform a Message object to a ChatCompletion object.
 
     This function converts the structure of a Message (from the original schema)
@@ -91,6 +96,7 @@ def transform_message_to_chat_completion(message: Message) -> ChatCompletion:
 
     Args:
         message (Message): The original Message object to be transformed.
+        enable_created_at (bool): Whether to include a unix timestamp.
 
     Returns:
         ChatCompletion: A new ChatCompletion object structured according to the target schema.
@@ -100,20 +106,14 @@ def transform_message_to_chat_completion(message: Message) -> ChatCompletion:
         - Tool use blocks are converted to ChatCompletionMessageToolCall objects.
         - The stop_reason is mapped to a corresponding finish_reason.
         - Usage information is restructured to fit the CompletionUsage model.
-        - The created timestamp is set to 0 and may need to be updated.
+        - The timestamp is 0 by default but is updated when ``enable_created_at`` is True
     """
     # Convert content to a single string
-    content = " ".join(
-        [block.text if isinstance(block, TextBlock) else f"[Tool Use: {block.name}]" for block in message.content]
-    )
+    content = " ".join([block.text for block in message.content if isinstance(block, TextBlock)]) or None
 
     # Create tool calls from ToolUseBlock instances
     tool_calls = [
-        ChatCompletionMessageToolCall(
-            id=block.id, function=Function(name=block.name, arguments=json.dumps(block.input)), type="function"
-        )
-        for block in message.content
-        if isinstance(block, ToolUseBlock)
+        anthropic_tool_call_to_openai_tool_call(block) for block in message.content if isinstance(block, ToolUseBlock)
     ]
 
     # Create the ChatCompletionMessage
@@ -142,41 +142,8 @@ def transform_message_to_chat_completion(message: Message) -> ChatCompletion:
     return ChatCompletion(
         id=message.id,
         choices=[choice],
-        created=0,  # You might want to add a timestamp here
+        created=int(time.time()) if enable_created_at else 0,
         model=message.model,
         object="chat.completion",
         usage=usage,
     )
-
-
-# if __name__ == "__main__":
-#     from dotenv import load_dotenv
-#     from instructor import Mode
-#
-#     from spark_instructor.client import get_anthropic_client
-#     from spark_instructor.response_models import User
-#
-#     load_dotenv()
-#
-#     client = get_anthropic_client(mode=Mode.ANTHROPIC_TOOLS)
-#     _, tool_completion = client.chat.completions.create_with_completion(
-#         response_model=User,
-#         model="claude-3-5-sonnet-20240620",
-#         messages=[{"role": "user", "content": "Create a user"}],
-#         max_tokens=400,
-#     )
-#     print(tool_completion.model_dump_json())
-#     raw_message = Message(
-#         **{
-#             "id": "msg_01PPz1sb8XEJfT3NBLxn6C7y",
-#             "content": [{"text": '{\n  "name": "John Doe",\n  "age": 30\n}', "type": "text"}],
-#             "model": "claude-3-5-sonnet-20240620",
-#             "role": "assistant",
-#             "stop_reason": "end_turn",
-#             "stop_sequence": None,
-#             "type": "message",
-#             "usage": {"input_tokens": 156, "output_tokens": 23},
-#         }
-#     )
-#     print(transform_message_to_chat_completion(raw_message))
-#     print(transform_message_to_chat_completion(tool_completion))

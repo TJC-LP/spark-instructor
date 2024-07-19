@@ -7,7 +7,7 @@ edit_uri: ""
 theme:
   name: "material"
   logo: assets/TJC_White_Logo.svg
-  favicon: assets/TJC_White_Logo.svg
+  favicon: assets/TJC_280_Logo.svg
   font:
     text: "open-sans"
   palette:
