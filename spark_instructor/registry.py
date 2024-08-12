@@ -3,13 +3,31 @@
 from dataclasses import dataclass, field
 from typing import Dict, Type
 
+from spark_instructor import is_anthropic_available
 from spark_instructor.factory import (
-    AnthropicFactory,
     ClientFactory,
     DatabricksFactory,
     OllamaFactory,
     OpenAIFactory,
 )
+
+
+def get_default_factories() -> Dict[str, Type[ClientFactory]]:
+    """Get default factories based on whether anthropic is available."""
+    if is_anthropic_available():
+        from spark_instructor.factory import AnthropicFactory
+
+        return {
+            "anthropic": AnthropicFactory,
+            "openai": OpenAIFactory,
+            "databricks": DatabricksFactory,
+            "ollama": OllamaFactory,
+        }
+    return {
+        "openai": OpenAIFactory,
+        "databricks": DatabricksFactory,
+        "ollama": OllamaFactory,
+    }
 
 
 @dataclass
@@ -36,14 +54,7 @@ class ClientRegistry:
         ```
     """
 
-    factories: Dict[str, Type[ClientFactory]] = field(
-        default_factory=lambda: {
-            "anthropic": AnthropicFactory,
-            "openai": OpenAIFactory,
-            "databricks": DatabricksFactory,
-            "ollama": OllamaFactory,
-        }
-    )
+    factories: Dict[str, Type[ClientFactory]] = field(default_factory=get_default_factories)
     model_map: Dict[str, str] = field(
         default_factory=lambda: {"databricks": "databricks", "gpt": "openai", "claude": "anthropic", "llama": "ollama"}
     )
