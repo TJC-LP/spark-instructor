@@ -3,7 +3,18 @@
 import re
 import warnings
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Generic, Optional, Tuple, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 import instructor
 from instructor import Mode
@@ -13,10 +24,13 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import StructField, StructType
 from sparkdantic.model import create_spark_schema
 
+from spark_instructor import is_anthropic_available
 from spark_instructor.client import ModelClass, get_instructor, infer_model_class
-from spark_instructor.completions.anthropic_completions import AnthropicCompletion
 from spark_instructor.completions.databricks_completions import DatabricksCompletion
 from spark_instructor.completions.openai_completions import OpenAICompletion
+
+if TYPE_CHECKING:
+    from spark_instructor.completions.anthropic_completions import AnthropicCompletion
 
 ResponseModel = TypeVar("ResponseModel", bound=BaseModel)
 
@@ -145,7 +159,7 @@ class MessageRouter(Generic[ResponseModel]):
             self.model_class = infer_model_class(self.model)
 
     @property
-    def completion_type(self) -> Union[Type[AnthropicCompletion], Type[DatabricksCompletion], Type[OpenAICompletion]]:
+    def completion_type(self) -> Union[Type["AnthropicCompletion"], Type[DatabricksCompletion], Type[OpenAICompletion]]:
         """Get the appropriate completion type based on the ``model_class`` attribute.
 
         Returns:
@@ -153,7 +167,17 @@ class MessageRouter(Generic[ResponseModel]):
                 The completion type corresponding to the model class.
         """
         if self.model_class == ModelClass.ANTHROPIC:
-            return AnthropicCompletion
+            if is_anthropic_available():
+                from spark_instructor.completions.anthropic_completions import (
+                    AnthropicCompletion,
+                )
+
+                return AnthropicCompletion
+            else:
+                raise ImportError(
+                    "Please install ``anthropic`` by running ``pip install anthropic`` "
+                    "or ``pip install spark-instructor[anthropic]``"
+                )
         if self.model_class == ModelClass.DATABRICKS:
             return DatabricksCompletion
         return OpenAICompletion
@@ -225,7 +249,7 @@ class MessageRouter(Generic[ResponseModel]):
 
     def create_object_and_completion_from_messages(
         self, messages: list[ChatCompletionMessageParam], **kwargs: Any
-    ) -> Tuple[ResponseModel, Union[AnthropicCompletion, DatabricksCompletion, OpenAICompletion]]:
+    ) -> Tuple[ResponseModel, Union["AnthropicCompletion", DatabricksCompletion, OpenAICompletion]]:
         """Create a Pydantic object response and completion using the ``instructor`` client.
 
         The completion will be of the type corresponding to the ``model_class`` attribute.
@@ -259,7 +283,7 @@ class MessageRouter(Generic[ResponseModel]):
 
         def _func(
             messages: list[ChatCompletionMessageParam],
-        ) -> Tuple[ResponseModel, Union[AnthropicCompletion, DatabricksCompletion, OpenAICompletion]]:
+        ) -> Tuple[ResponseModel, Union["AnthropicCompletion", DatabricksCompletion, OpenAICompletion]]:
             return self.create_object_and_completion_from_messages(messages, **kwargs)
 
         schema = self.model_serializer.spark_schema
