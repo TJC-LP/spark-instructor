@@ -2,13 +2,18 @@ from pyspark.sql.functions import col, lit
 from pyspark.sql.types import (
     ArrayType,
     MapType,
+    NullType,
     Row,
     StringType,
     StructField,
     StructType,
 )
 
-from spark_instructor.utils.prompt import zero_shot_prompt
+from spark_instructor.utils.prompt import (
+    create_chat_completion_messages,
+    get_column_or_null,
+    zero_shot_prompt,
+)
 
 
 def test_user_message_only(spark):
@@ -72,3 +77,47 @@ def test_docstring_example(spark):
         {"role": "system", "content": "Be helpful"},
         {"role": "user", "content": "Hello"},
     ]
+
+
+def test_create_chat_completion_messages(spark):
+    # Test with minimal required fields
+    df = spark.createDataFrame([("Hello", "Be helpful")], ["user_msg", "sys_msg"])
+    messages = [{"role": lit("system"), "content": "sys_msg"}, {"role": lit("user"), "content": "user_msg"}]
+    result = create_chat_completion_messages(messages)
+    df = df.withColumn("messages", result)
+    schema = df.select(result.alias("messages")).schema
+
+    assert isinstance(schema, StructType)
+
+    result_data = df.collect()[0]["messages"]
+    assert len(result_data) == 2
+    assert result_data[0]["role"] == "system"
+    assert result_data[0]["content"] == "Be helpful"
+    assert result_data[1]["role"] == "user"
+    assert result_data[1]["content"] == "Hello"
+
+
+def test_get_column_or_null(spark):
+    # Test with None
+    result = get_column_or_null(None)
+    df = spark.range(1).select(result.alias("result"))
+    assert df.schema["result"].dataType == NullType()
+    assert df.collect()[0]["result"] is None
+
+    # Test with string column name
+    result = get_column_or_null("test_column")
+    df = spark.createDataFrame([("value",)], ["test_column"]).select(result.alias("result"))
+    assert df.schema["result"].dataType == StringType()
+    assert df.collect()[0]["result"] == "value"
+
+    # Test with Column object
+    result = get_column_or_null(col("test_column"))
+    df = spark.createDataFrame([("value",)], ["test_column"]).select(result.alias("result"))
+    assert df.schema["result"].dataType == StringType()
+    assert df.collect()[0]["result"] == "value"
+
+    # Test with literal
+    result = get_column_or_null(lit("literal_value"))
+    df = spark.range(1).select(result.alias("result"))
+    assert df.schema["result"].dataType == StringType()
+    assert df.collect()[0]["result"] == "literal_value"

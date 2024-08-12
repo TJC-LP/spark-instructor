@@ -1,11 +1,17 @@
 """Utilities for prompt generation."""
 
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 import pyspark.sql.functions as f
 from pyspark.sql.column import Column
+from sparkdantic.model import create_spark_schema
+from typing_extensions import Required, TypedDict
+
+from spark_instructor.types.base import SparkChatCompletionMessage
 
 ColumnOrName = Union[Column, str]
+
+__all__ = ["zero_shot_prompt", "create_chat_completion_messages"]
 
 
 def zero_shot_prompt(
@@ -32,6 +38,8 @@ def zero_shot_prompt(
         - If system_message_column is provided, the system message and user message are included.
 
     Example:
+        ```python
+
         >>> from databricks.connect import DatabricksSession
         >>> spark = DatabricksSession.builder.serverless().getOrCreate()
         >>> df = spark.createDataFrame([("Hello", "Be helpful")], ["user_msg", "sys_msg"])
@@ -43,6 +51,8 @@ def zero_shot_prompt(
         |[{role -> system, content -> Be helpful}, {role -> user, content -> Hello}]|
         +---------------------------------------------------------------------------+
         <BLANKLINE>
+
+        ```
     """
     role_column = f.lit("role")
     content_column = f.lit("content")
@@ -52,3 +62,100 @@ def zero_shot_prompt(
         system_map = f.create_map(role_column, f.lit("system"), content_column, system_message_column)
         return f.array(system_map, user_map)
     return f.array(user_map)
+
+
+def get_column_or_null(column: ColumnOrName | None = None) -> Column:
+    """Format optional column."""
+    if column is None:
+        return f.lit(None)
+    if isinstance(column, str):
+        return f.col(column)
+    return column
+
+
+class SparkChatCompletionColumns(TypedDict, total=False):
+    role: Required[ColumnOrName]
+    content: ColumnOrName
+    image_urls: ColumnOrName
+    name: ColumnOrName
+    tool_calls: ColumnOrName
+    tool_call_id: ColumnOrName
+
+
+def create_chat_completion_messages(messages: list[SparkChatCompletionColumns]) -> Column:
+    """Create an array of chat completion message structures from a list of column specifications.
+
+    This function generates a Spark SQL Column containing an array of structured messages
+    suitable for chat completion tasks. It handles all possible fields of a chat message,
+    including role, content, image URLs, name, tool calls, and tool call IDs. Note that ``image_urls``
+    are NOT included in the ``content`` due to spark serialization requiring a static schema.
+
+    Args:
+        messages (list[SparkChatCompletionColumns]): A list of dictionaries, where each dictionary
+            specifies the columns or literal values for different parts of a chat message.
+            The dictionary keys can include:
+            ```markdown
+            - role (Required[ColumnOrName]): The role of the message (e.g., "user", "assistant", "system").
+            - content (ColumnOrName, optional): The text content of the message.
+            - image_urls (ColumnOrName, optional): URLs of images associated with the message.
+            - name (ColumnOrName, optional): Name associated with the message.
+            - tool_calls (ColumnOrName, optional): Tool calls made in the message.
+            - tool_call_id (ColumnOrName, optional): ID of the tool call.
+            ```
+
+    Returns:
+        Column: A Spark SQL Column containing an array of structured messages. Each message
+        is cast to the SparkChatCompletionMessage schema.
+
+    Notes:
+        - The function uses the SparkChatCompletionMessage schema to ensure type consistency.
+        - Fields not specified in the input will be set to None in the output.
+        - This function is particularly useful for creating complex, multi-message prompts
+          for chat-based language models in a Spark environment.
+
+    Example:
+        ```python
+
+        >>> from pyspark.sql import functions as f
+        >>> from databricks.connect import DatabricksSession
+        >>> spark = DatabricksSession.builder.serverless().getOrCreate()
+        >>> df = spark.createDataFrame([("Hello", "Be helpful")], ["user_msg", "sys_msg"])
+        >>> messages = [
+        ...     {"role": f.lit("system"), "content": "sys_msg"},
+        ...     {"role": f.lit("user"), "content": "user_msg"}
+        ... ]
+        >>> chat_messages = create_chat_completion_messages(messages)
+        >>> df.select(chat_messages.alias("messages")).show(truncate=False)
+        +-------------------------------------------------------------------------------------+
+        |messages                                                                             |
+        +-------------------------------------------------------------------------------------+
+        |[{system, Be helpful, NULL, NULL, NULL, NULL}, {user, Hello, NULL, NULL, NULL, NULL}]|
+        +-------------------------------------------------------------------------------------+
+        <BLANKLINE>
+
+        ```
+    Raises:
+        ValueError: If a required field (e.g., 'role') is missing from any message specification.
+    """
+    all_keys: list[Literal["role", "content", "image_urls", "name", "tool_calls", "tool_call_id"]] = [
+        "role",
+        "content",
+        "image_urls",
+        "name",
+        "tool_calls",
+        "tool_call_id",
+    ]
+    cast_schema = create_spark_schema(SparkChatCompletionMessage)
+
+    def create_struct(message: SparkChatCompletionColumns):
+        struct_fields = []
+        for key in all_keys:
+            if key in message:
+                val = message[key]
+                struct_fields.append(f.col(val).alias(key) if isinstance(val, str) else val.alias(key))
+            else:
+                struct_fields.append(f.lit(None).alias(key))
+
+        return f.struct(*struct_fields).cast(cast_schema)
+
+    return f.array(*[create_struct(message) for message in messages])

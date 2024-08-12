@@ -1,6 +1,7 @@
-"""Module for defining ``spark-instructor`` user-defined functions in Spark."""
+"""Module for ``MessageRouter``."""
 
 import re
+import warnings
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Generic, Optional, Tuple, Type, TypeVar, Union
 
@@ -13,9 +14,9 @@ from pyspark.sql.types import StructField, StructType
 from sparkdantic.model import create_spark_schema
 
 from spark_instructor.client import ModelClass, get_instructor, infer_model_class
-from spark_instructor.completions.anthropic import AnthropicCompletion
-from spark_instructor.completions.databricks import DatabricksCompletion
-from spark_instructor.completions.openai import OpenAICompletion
+from spark_instructor.completions.anthropic_completions import AnthropicCompletion
+from spark_instructor.completions.databricks_completions import DatabricksCompletion
+from spark_instructor.completions.openai_completions import OpenAICompletion
 
 ResponseModel = TypeVar("ResponseModel", bound=BaseModel)
 
@@ -32,7 +33,7 @@ class ModelSerializer:
         completion_model_type (Type[BaseModel]): The Pydantic model type for the completion data.
     """
 
-    response_model_type: Type[BaseModel]
+    response_model_type: Type[BaseModel] | None
     completion_model_type: Type[BaseModel]
 
     @staticmethod
@@ -52,14 +53,18 @@ class ModelSerializer:
         return re.sub("([a-z0-9])([A-Z])", r"\1_\2", name).lower()
 
     @property
-    def response_model_name(self) -> str:
+    def response_model_name(self) -> str | None:
         """Pydantic model field name in snake-case."""
-        return self.to_snake_case(self.response_model_type.__name__)
+        if self.response_model_type is not None:
+            return self.to_snake_case(self.response_model_type.__name__)
+        return None
 
     @property
-    def response_model_spark_schema(self) -> StructType:
+    def response_model_spark_schema(self) -> StructType | None:
         """Response model spark schema."""
-        return create_spark_schema(self.response_model_type)
+        if self.response_model_type is not None:
+            return create_spark_schema(self.response_model_type)
+        return None
 
     @property
     def completion_model_name(self) -> str:
@@ -84,11 +89,19 @@ class ModelSerializer:
                         Each field is named after the snake case version of its model class name
                         and contains the corresponding Spark schema.
         """
-        return StructType(
-            [
-                StructField(self.response_model_name, self.response_model_spark_schema, nullable=True),
-                StructField(self.completion_model_name, self.completion_model_spark_schema, nullable=True),
-            ]
+        return (
+            StructType(
+                [
+                    StructField(self.response_model_name, self.response_model_spark_schema, nullable=True),
+                    StructField(self.completion_model_name, self.completion_model_spark_schema, nullable=True),
+                ]
+            )
+            if self.response_model_spark_schema and self.response_model_name
+            else StructType(
+                [
+                    StructField(self.completion_model_name, self.completion_model_spark_schema, nullable=True),
+                ]
+            )
         )
 
 
@@ -102,11 +115,14 @@ class MessageRouter(Generic[ResponseModel]):
     Attributes:
         model (str): The name of the model to use.
         response_model_type (Type[ResponseModel]): The Pydantic model type for the response.
-        model_class (Optional[ModelClass]): The class of the model (e.g., ``ModelClass.OPEN_AI``).
+        model_class (Optional[ModelClass]): The class of the model (e.g., ``ModelClass.OPENAI``).
             If not provided, it will be inferred based on the ``model``.
         mode (Optional[Mode]): The mode for the instructor client.
         base_url (Optional[str]): The base URL for API calls.
         api_key (Optional[str]): The API key for authentication.
+
+    Notes:
+        **WARNING:** ``MessageRouter`` is now deprecated. Use ``instruct`` instead.
     """
 
     model: str
@@ -121,6 +137,10 @@ class MessageRouter(Generic[ResponseModel]):
 
         The ``model_class`` will be inferred based on the ``model`` attribute.
         """
+        warnings.warn(
+            "`MessageRouter` is deprecated and may be removed in future versions. " "Please use `instruct` instead.",
+            DeprecationWarning,
+        )
         if self.model_class is None:
             self.model_class = infer_model_class(self.model)
 
@@ -195,6 +215,7 @@ class MessageRouter(Generic[ResponseModel]):
             return self.create_object_from_messages(messages, **kwargs)
 
         schema = self.model_serializer.response_model_spark_schema
+        assert schema, "Null response models are not supported by `MessageRouter`"
 
         @udf(returnType=schema)
         def func(messages: list[ChatCompletionMessageParam]) -> Dict[str, Any]:
@@ -243,6 +264,7 @@ class MessageRouter(Generic[ResponseModel]):
 
         schema = self.model_serializer.spark_schema
         response_model_name = self.model_serializer.response_model_name
+        assert response_model_name, "Null response models are not supported by `MessageRouter`"
         completion_model_name = self.model_serializer.completion_model_name
 
         @udf(returnType=schema)
