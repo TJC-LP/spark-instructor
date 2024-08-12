@@ -3822,10 +3822,10 @@ idna = ">=2.0"
 multidict = ">=4.0"
 
 [extras]
-anthropic = []
-databricks = []
+anthropic = ["anthropic"]
+databricks = ["databricks-connect", "databricks-sdk"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10,<4.0.0"
-content-hash = "65a4d3febf4c330cc4475ee2f7233f8313fc6dc01e7fd6f66873614e2af9a2ba"
+content-hash = "a6a4bedcecfaff069f7cc02af626839ca7935c1ee588a55b5e4faee154d356ea"
