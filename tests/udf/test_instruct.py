@@ -359,6 +359,22 @@ def test_instruct_execution(spark, mock_registry):
                                                     "nullable": False,
                                                     "type": "integer",
                                                 },
+                                                {
+                                                    "metadata": {},
+                                                    "name": "completion_tokens_details",
+                                                    "nullable": True,
+                                                    "type": {
+                                                        "fields": [
+                                                            {
+                                                                "metadata": {},
+                                                                "name": "reasoning_tokens",
+                                                                "nullable": True,
+                                                                "type": "integer",
+                                                            }
+                                                        ],
+                                                        "type": "struct",
+                                                    },
+                                                },
                                             ],
                                             "type": "struct",
                                         },

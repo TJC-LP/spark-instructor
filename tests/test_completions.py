@@ -78,7 +78,12 @@ def test_anthropic_conversion(anthropic_tools_message, anthropic_json_message):
         "object": "chat.completion",
         "service_tier": None,
         "system_fingerprint": None,
-        "usage": {"completion_tokens": 102, "prompt_tokens": 919, "total_tokens": 1021},
+        "usage": {
+            "completion_tokens": 102,
+            "completion_tokens_details": None,
+            "prompt_tokens": 919,
+            "total_tokens": 1021,
+        },
     }
 
     transformed_json_message = transform_message_to_chat_completion(anthropic_json_message)
@@ -104,7 +109,12 @@ def test_anthropic_conversion(anthropic_tools_message, anthropic_json_message):
         "object": "chat.completion",
         "service_tier": None,
         "system_fingerprint": None,
-        "usage": {"completion_tokens": 23, "prompt_tokens": 156, "total_tokens": 179},
+        "usage": {
+            "completion_tokens": 23,
+            "completion_tokens_details": None,
+            "prompt_tokens": 156,
+            "total_tokens": 179,
+        },
     }
 
 
@@ -136,7 +146,12 @@ def test_databricks_completion():
         "object": "chat.completion",
         "service_tier": None,
         "system_fingerprint": None,
-        "usage": {"completion_tokens": 21, "prompt_tokens": 169, "total_tokens": 190},
+        "usage": {
+            "completion_tokens": 21,
+            "completion_tokens_details": None,
+            "prompt_tokens": 169,
+            "total_tokens": 190,
+        },
     }
     dc = DatabricksCompletion(**raw_data)
     assert dc.model_dump() == raw_data
@@ -170,7 +185,7 @@ def test_openai_completion():
         "object": "chat.completion",
         "service_tier": None,
         "system_fingerprint": "fp_d576307f90",
-        "usage": {"completion_tokens": 10, "prompt_tokens": 64, "total_tokens": 74},
+        "usage": {"completion_tokens": 10, "completion_tokens_details": None, "prompt_tokens": 64, "total_tokens": 74},
     }
     oc = OpenAICompletion(**raw_data)
     assert oc.model_dump() == raw_data

@@ -562,6 +562,22 @@ def test_create_object_and_completion_from_messages_udf(spark, mock_model_class_
                                                     "nullable": False,
                                                     "type": "integer",
                                                 },
+                                                {
+                                                    "metadata": {},
+                                                    "name": "completion_tokens_details",
+                                                    "nullable": True,
+                                                    "type": {
+                                                        "fields": [
+                                                            {
+                                                                "metadata": {},
+                                                                "name": "reasoning_tokens",
+                                                                "nullable": True,
+                                                                "type": "integer",
+                                                            }
+                                                        ],
+                                                        "type": "struct",
+                                                    },
+                                                },
                                             ],
                                             "type": "struct",
                                         },
