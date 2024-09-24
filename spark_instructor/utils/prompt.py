@@ -8,6 +8,7 @@ from sparkdantic.model import create_spark_schema
 from typing_extensions import Required, TypedDict
 
 from spark_instructor.types.base import SparkChatCompletionMessage
+from spark_instructor.utils.types import make_spark_schema_nullable
 
 ColumnOrName = Union[Column, str]
 
@@ -82,7 +83,7 @@ class SparkChatCompletionColumns(TypedDict, total=False):
     tool_call_id: ColumnOrName
 
 
-def create_chat_completion_messages(messages: list[SparkChatCompletionColumns]) -> Column:
+def create_chat_completion_messages(messages: list[SparkChatCompletionColumns], strict: bool = True) -> Column:
     """Create an array of chat completion message structures from a list of column specifications.
 
     This function generates a Spark SQL Column containing an array of structured messages
@@ -102,6 +103,8 @@ def create_chat_completion_messages(messages: list[SparkChatCompletionColumns]) 
             - tool_calls (ColumnOrName, optional): Tool calls made in the message.
             - tool_call_id (ColumnOrName, optional): ID of the tool call.
             ```
+        strict (bool): Whether to make the schema nullability strict. Useful when columns are UDF generated.
+            Recommended when using ``image_urls``.
 
     Returns:
         Column: A Spark SQL Column containing an array of structured messages. Each message
@@ -146,6 +149,8 @@ def create_chat_completion_messages(messages: list[SparkChatCompletionColumns]) 
         "tool_call_id",
     ]
     cast_schema = create_spark_schema(SparkChatCompletionMessage)
+    if not strict:
+        cast_schema = make_spark_schema_nullable(cast_schema)
 
     def create_struct(message: SparkChatCompletionColumns):
         struct_fields = []
