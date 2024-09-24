@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import array, col, lit, struct
 from pyspark.sql.types import (
     ArrayType,
     MapType,
@@ -88,6 +88,137 @@ def test_create_chat_completion_messages(spark):
     schema = df.select(result.alias("messages")).schema
 
     assert isinstance(schema, StructType)
+    assert schema == StructType(
+        [
+            StructField(
+                "messages",
+                ArrayType(
+                    StructType(
+                        [
+                            StructField("role", StringType(), False),
+                            StructField("content", StringType(), True),
+                            StructField(
+                                "image_urls",
+                                ArrayType(
+                                    StructType(
+                                        [
+                                            StructField("url", StringType(), False),
+                                            StructField("detail", StringType(), True),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                True,
+                            ),
+                            StructField("name", StringType(), True),
+                            StructField(
+                                "tool_calls",
+                                ArrayType(
+                                    StructType(
+                                        [
+                                            StructField("id", StringType(), False),
+                                            StructField(
+                                                "function",
+                                                StructType(
+                                                    [
+                                                        StructField("arguments", StringType(), False),
+                                                        StructField("name", StringType(), False),
+                                                    ]
+                                                ),
+                                                False,
+                                            ),
+                                            StructField("type", StringType(), False),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                True,
+                            ),
+                            StructField("tool_call_id", StringType(), True),
+                        ]
+                    ),
+                    False,
+                ),
+                False,
+            )
+        ]
+    )
+
+    result_data = df.collect()[0]["messages"]
+    assert len(result_data) == 2
+    assert result_data[0]["role"] == "system"
+    assert result_data[0]["content"] == "Be helpful"
+    assert result_data[1]["role"] == "user"
+    assert result_data[1]["content"] == "Hello"
+
+
+def test_create_chat_completion_messages_nullable(spark, valid_base64):
+    # Test with minimal required fields
+    df = spark.createDataFrame([("Hello", "Be helpful")], ["user_msg", "sys_msg"]).withColumn(
+        "image_urls", array(struct(lit(valid_base64).alias("url"), lit("auto").alias("detail")))
+    )
+    messages = [
+        {"role": lit("system"), "content": "sys_msg"},
+        {"role": lit("user"), "content": "user_msg", "image_urls": "image_urls"},
+    ]
+    result = create_chat_completion_messages(messages, strict=False)
+    df = df.withColumn("messages", result)
+    schema = df.select(result.alias("messages")).schema
+    assert schema == StructType(
+        [
+            StructField(
+                "messages",
+                ArrayType(
+                    StructType(
+                        [
+                            StructField("role", StringType(), True),
+                            StructField("content", StringType(), True),
+                            StructField(
+                                "image_urls",
+                                ArrayType(
+                                    StructType(
+                                        [
+                                            StructField("url", StringType(), True),
+                                            StructField("detail", StringType(), True),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                True,
+                            ),
+                            StructField("name", StringType(), True),
+                            StructField(
+                                "tool_calls",
+                                ArrayType(
+                                    StructType(
+                                        [
+                                            StructField("id", StringType(), True),
+                                            StructField(
+                                                "function",
+                                                StructType(
+                                                    [
+                                                        StructField("arguments", StringType(), True),
+                                                        StructField("name", StringType(), True),
+                                                    ]
+                                                ),
+                                                True,
+                                            ),
+                                            StructField("type", StringType(), True),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                True,
+                            ),
+                            StructField("tool_call_id", StringType(), True),
+                        ]
+                    ),
+                    False,
+                ),
+                False,
+            )
+        ]
+    )
 
     result_data = df.collect()[0]["messages"]
     assert len(result_data) == 2
