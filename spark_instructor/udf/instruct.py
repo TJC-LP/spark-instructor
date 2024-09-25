@@ -9,6 +9,7 @@ import pandas as pd
 from pydantic import BaseModel
 from pyspark.sql import Column
 from pyspark.sql.functions import lit, pandas_udf
+from tenacity import AsyncRetrying
 
 from spark_instructor.completions import OpenAICompletion
 from spark_instructor.registry import ClientRegistry
@@ -18,6 +19,18 @@ from spark_instructor.udf.message_router import ModelSerializer
 T = TypeVar("T", bound=BaseModel)
 
 
+def get_or_create_event_loop() -> asyncio.AbstractEventLoop:
+    """Get the current event loop or create a new one."""
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_closed():
+            raise RuntimeError
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop
+
+
 def instruct(
     response_model: Optional[Type[T]] = None,
     default_model: Optional[str] = None,
@@ -25,8 +38,9 @@ def instruct(
     default_mode: Optional[instructor.Mode] = None,
     default_max_tokens: Optional[int] = None,
     default_temperature: Optional[float] = None,
-    default_max_retries: Optional[int] = 1,
+    default_max_retries: Optional[int | AsyncRetrying] = 1,
     registry: ClientRegistry = ClientRegistry(),
+    concurrency_limit: int = 16,
     **kwargs
 ) -> Callable:
     """Create a pandas UDF for serving model responses in a Spark environment.
@@ -45,6 +59,7 @@ def instruct(
         default_temperature (Optional[float]): The default temperature for the model's output.
         default_max_retries (Optional[int]): The default maximum number of retries for failed requests.
         registry (ClientRegistry): The client registry for routing requests to appropriate model factories.
+        concurrency_limit (int): The concurrency limit for the Sephamore.
         **kwargs: Additional keyword arguments to pass to the model creation function.
 
     Returns:
@@ -119,6 +134,7 @@ def instruct(
         conversations = [
             SparkChatCompletionMessages.model_validate(x) for x in json.loads(conversation.to_json(orient="records"))
         ]
+        semaphore = asyncio.Semaphore(concurrency_limit)
 
         async def process_row(
             conversation_: SparkChatCompletionMessages,
@@ -147,9 +163,29 @@ def instruct(
             )
             return result
 
+        async def process_row_with_semaphore(
+            conversation_,
+            model_,
+            model_class_,
+            mode_,
+            max_tokens_,
+            temperature_,
+            max_retries_,
+        ):
+            async with semaphore:
+                return await process_row(
+                    conversation_,
+                    model_,
+                    model_class_,
+                    mode_,
+                    max_tokens_,
+                    temperature_,
+                    max_retries_,
+                )
+
         async def process_all_rows():
             tasks = [
-                process_row(
+                process_row_with_semaphore(
                     conv,
                     mdl or default_model,
                     mdl_cls,
@@ -170,9 +206,8 @@ def instruct(
             ]
             return await asyncio.gather(*tasks)
 
-        loop = asyncio.new_event_loop()
+        loop = get_or_create_event_loop()
         results = loop.run_until_complete(process_all_rows())
-        loop.close()
 
         # Convert results to DataFrame
         return pd.DataFrame(
@@ -221,7 +256,7 @@ def instruct(
         if temperature is None:
             temperature = lit(default_temperature)
         if max_retries is None:
-            max_retries = lit(default_max_retries)
+            max_retries = lit(default_max_retries) if isinstance(default_max_retries, int) else lit(None)
         if model_class is None:
             model_class = lit(default_model_class) if default_model_class else lit(None)
         if mode is None:
