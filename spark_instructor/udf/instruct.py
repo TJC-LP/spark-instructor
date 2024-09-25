@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 from typing import Callable, Optional, Type, TypeVar
 
 import instructor
@@ -17,6 +18,10 @@ from spark_instructor.types.base import SparkChatCompletionMessages
 from spark_instructor.udf.message_router import ModelSerializer
 
 T = TypeVar("T", bound=BaseModel)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+default_logger = logging.getLogger(__name__)
 
 
 def get_or_create_event_loop() -> asyncio.AbstractEventLoop:
@@ -41,7 +46,9 @@ def instruct(
     default_max_retries: Optional[int | AsyncRetrying] = 1,
     registry: ClientRegistry = ClientRegistry(),
     concurrency_limit: int = 16,
-    **kwargs
+    timeout: float = 120,
+    logger: logging.Logger = default_logger,
+    **kwargs,
 ) -> Callable:
     """Create a pandas UDF for serving model responses in a Spark environment.
 
@@ -60,6 +67,8 @@ def instruct(
         default_max_retries (Optional[int]): The default maximum number of retries for failed requests.
         registry (ClientRegistry): The client registry for routing requests to appropriate model factories.
         concurrency_limit (int): The concurrency limit for the Sephamore.
+        timeout (float): The timeout to use before raising an exception.
+        logger (Logger): Logger to use.
         **kwargs: Additional keyword arguments to pass to the model creation function.
 
     Returns:
@@ -104,6 +113,7 @@ def instruct(
         - If `response_model` is None, the UDF will return the raw completion message as a string.
         - The function supports both structured (Pydantic model) and unstructured (string) responses.
     """  # noqa: E501
+    logger.info(f"Initializing instruct function with concurrency limit: {concurrency_limit}, timeout: {timeout}")
     model_serializer = ModelSerializer(response_model, OpenAICompletion)
 
     @pandas_udf(returnType=model_serializer.spark_schema)  # type: ignore
@@ -131,6 +141,7 @@ def instruct(
             pd.DataFrame: DataFrame containing the processed responses.
         """
         # Convert dataframe rows to list of Conversation objects
+        logger.info(f"Processing batch of {len(conversation)} conversations")
         conversations = [
             SparkChatCompletionMessages.model_validate(x) for x in json.loads(conversation.to_json(orient="records"))
         ]
@@ -145,6 +156,7 @@ def instruct(
             temperature_: float,
             max_retries_: int,
         ):
+            logger.debug(f"Processing row with model: {model_}, model_class: {model_class_}")
             factory_type = (
                 registry.get_factory(model_class_)
                 if model_class_ is not None
@@ -152,16 +164,25 @@ def instruct(
             )
             factory = factory_type.from_config(instructor.Mode(mode_) if mode_ is not None else mode_)
             create_fn = factory.create_with_completion if response_model else factory.create
-            result = await create_fn(
-                messages=conversation_,
-                response_model=response_model,  # type: ignore
-                model=model_,
-                max_tokens=max_tokens_,
-                temperature=temperature_,
-                max_retries=max_retries_,
-                **kwargs
-            )
-            return result
+            try:
+                async with asyncio.timeout(timeout):
+                    result = await create_fn(
+                        messages=conversation_,
+                        response_model=response_model,  # type: ignore
+                        model=model_,
+                        max_tokens=max_tokens_,
+                        temperature=temperature_,
+                        max_retries=max_retries_,
+                        **kwargs,
+                    )
+                logger.debug("Row processed successfully")
+                return result
+            except asyncio.TimeoutError:
+                logger.error(f"Timeout occurred while processing row with model: {model_}")
+                raise
+            except Exception as e:
+                logger.error(f"Error processing row with model {model_}: {str(e)}")
+                raise
 
         async def process_row_with_semaphore(
             conversation_,
@@ -207,7 +228,12 @@ def instruct(
             return await asyncio.gather(*tasks)
 
         loop = get_or_create_event_loop()
-        results = loop.run_until_complete(process_all_rows())
+        try:
+            results = loop.run_until_complete(process_all_rows())
+            logger.info(f"Successfully processed {len(results)} rows")
+        except Exception as e:
+            logger.error(f"Error processing batch: {str(e)}")
+            raise
 
         # Convert results to DataFrame
         return pd.DataFrame(
