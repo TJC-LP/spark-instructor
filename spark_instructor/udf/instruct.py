@@ -26,6 +26,7 @@ T = TypeVar("T", bound=BaseModel)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
+logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 default_logger = logging.getLogger(__name__)
 
 
@@ -65,7 +66,7 @@ def create_async_retrying(config: AsyncRetryingConfig) -> AsyncRetrying:
     stop_strategy = stop_after_attempt(config.get("max_attempts", 5))
 
     wait_strategy = wait_exponential(
-        multiplier=config.get("wait_multiplier", 1), min=config.get("wait_min", 60), max=config.get("wait_max", 300)
+        multiplier=config.get("wait_multiplier", 1), min=config.get("wait_min", 1), max=config.get("wait_max", 60)
     )
 
     retry_exception = config.get("retry_exception", Exception)
@@ -89,8 +90,9 @@ def instruct(
     default_max_retries: Optional[int | AsyncRetryingConfig] = 1,
     registry: ClientRegistry = ClientRegistry(),
     concurrency_limit: int = 16,
-    task_timeout: float = 120,
+    task_timeout: float = 600,
     logger: logging.Logger = default_logger,
+    safe_mode: bool = False,
     **kwargs,
 ) -> Callable:
     """Create a pandas UDF for serving model responses in a Spark environment.
@@ -114,6 +116,8 @@ def instruct(
         task_timeout (float): The timeout to use before raising an exception.
             This represents timeout on the task level.
         logger (Logger): Logger to use.
+        safe_mode (bool): If True, return a null row instead of raising an exception when an error occurs.
+            Recommended for large batches.
         **kwargs: Additional keyword arguments to pass to the model creation function.
 
     Returns:
@@ -158,7 +162,10 @@ def instruct(
         - If `response_model` is None, the UDF will return the raw completion message as a string.
         - The function supports both structured (Pydantic model) and unstructured (string) responses.
     """  # noqa: E501
-    logger.info(f"Initializing instruct function with concurrency limit: {concurrency_limit}, timeout: {task_timeout}")
+    logger.info(
+        f"Initializing instruct function with concurrency limit: "
+        f"{concurrency_limit}, timeout: {task_timeout}, safe_mode: {safe_mode}"
+    )
     model_serializer = ModelSerializer(response_model, OpenAICompletion)
 
     @pandas_udf(returnType=model_serializer.spark_schema)  # type: ignore
@@ -228,9 +235,13 @@ def instruct(
                 return result
             except asyncio.TimeoutError:
                 logger.error(f"Timeout occurred while processing row with model: {model_}")
+                if safe_mode:
+                    return None
                 raise
             except Exception as e:
                 logger.error(f"Error processing row with model {model_}: {str(e)}")
+                if safe_mode:
+                    return None
                 raise
 
         async def process_row_with_semaphore(
@@ -289,11 +300,11 @@ def instruct(
             [
                 (
                     {
-                        model_serializer.response_model_name: res[0].model_dump(),
-                        model_serializer.completion_model_name: res[1].model_dump(),
+                        model_serializer.response_model_name: res[0].model_dump() if res else None,
+                        model_serializer.completion_model_name: res[1].model_dump() if res else None,
                     }
                     if response_model
-                    else {model_serializer.completion_model_name: res.model_dump()}
+                    else {model_serializer.completion_model_name: res.model_dump() if res else None}
                 )
                 for res in results
             ]
