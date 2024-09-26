@@ -3,14 +3,19 @@
 import asyncio
 import json
 import logging
-from typing import Callable, Optional, Type, TypeVar
+from typing import Callable, Optional, Type, TypedDict, TypeVar
 
 import instructor
 import pandas as pd
 from pydantic import BaseModel
 from pyspark.sql import Column
 from pyspark.sql.functions import lit, pandas_udf
-from tenacity import AsyncRetrying
+from tenacity import (
+    AsyncRetrying,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from spark_instructor.completions import OpenAICompletion
 from spark_instructor.registry import ClientRegistry
@@ -36,6 +41,44 @@ def get_or_create_event_loop() -> asyncio.AbstractEventLoop:
     return loop
 
 
+class AsyncRetryingConfig(TypedDict, total=False):
+    """Config for creating an ``tenacity.AsyncRetrying`` class."""
+
+    max_attempts: int
+    wait_multiplier: float
+    wait_min: float
+    wait_max: float
+    retry_exception: Type[Exception]
+    reraise: bool
+
+
+def create_async_retrying(config: AsyncRetryingConfig) -> AsyncRetrying:
+    """Create a ``tenacity.AsyncRetrying`` object from a configuration dictionary.
+
+    pyspark has trouble serializing ``tenacity.AsyncRetrying`` objects, so we can create one within the UDF instead.
+
+    Args:
+        config (AsyncRetryingConfig): A dictionary containing retry configuration parameters
+    Returns
+        An AsyncRetrying object
+    """
+    stop_strategy = stop_after_attempt(config.get("max_attempts", 5))
+
+    wait_strategy = wait_exponential(
+        multiplier=config.get("wait_multiplier", 1), min=config.get("wait_min", 60), max=config.get("wait_max", 300)
+    )
+
+    retry_exception = config.get("retry_exception", Exception)
+    if not isinstance(retry_exception, type):
+        raise ValueError("retry_exception must be a type")
+
+    retry_strategy = retry_if_exception_type(retry_exception)
+
+    return AsyncRetrying(
+        stop=stop_strategy, wait=wait_strategy, retry=retry_strategy, reraise=config.get("reraise", True)
+    )
+
+
 def instruct(
     response_model: Optional[Type[T]] = None,
     default_model: Optional[str] = None,
@@ -43,10 +86,10 @@ def instruct(
     default_mode: Optional[instructor.Mode] = None,
     default_max_tokens: Optional[int] = None,
     default_temperature: Optional[float] = None,
-    default_max_retries: Optional[int | AsyncRetrying] = 1,
+    default_max_retries: Optional[int | AsyncRetryingConfig] = 1,
     registry: ClientRegistry = ClientRegistry(),
     concurrency_limit: int = 16,
-    timeout: float = 120,
+    task_timeout: float = 120,
     logger: logging.Logger = default_logger,
     **kwargs,
 ) -> Callable:
@@ -64,10 +107,12 @@ def instruct(
         default_mode (Optional[instructor.Mode]): The default instructor mode to use.
         default_max_tokens (Optional[int]): The default maximum number of tokens for the response.
         default_temperature (Optional[float]): The default temperature for the model's output.
-        default_max_retries (Optional[int]): The default maximum number of retries for failed requests.
+        default_max_retries (Optional[int | AsyncRetryingConfig): The default maximum number of retries for failed requests.
+            Can be a dictionary for creating an exponential backoff using ``create_async_retrying``.
         registry (ClientRegistry): The client registry for routing requests to appropriate model factories.
         concurrency_limit (int): The concurrency limit for the Sephamore.
-        timeout (float): The timeout to use before raising an exception.
+        task_timeout (float): The timeout to use before raising an exception.
+            This represents timeout on the task level.
         logger (Logger): Logger to use.
         **kwargs: Additional keyword arguments to pass to the model creation function.
 
@@ -113,7 +158,7 @@ def instruct(
         - If `response_model` is None, the UDF will return the raw completion message as a string.
         - The function supports both structured (Pydantic model) and unstructured (string) responses.
     """  # noqa: E501
-    logger.info(f"Initializing instruct function with concurrency limit: {concurrency_limit}, timeout: {timeout}")
+    logger.info(f"Initializing instruct function with concurrency limit: {concurrency_limit}, timeout: {task_timeout}")
     model_serializer = ModelSerializer(response_model, OpenAICompletion)
 
     @pandas_udf(returnType=model_serializer.spark_schema)  # type: ignore
@@ -154,7 +199,7 @@ def instruct(
             mode_: str,
             max_tokens_: int,
             temperature_: float,
-            max_retries_: int,
+            max_retries_: int | AsyncRetryingConfig,
         ):
             logger.debug(f"Processing row with model: {model_}, model_class: {model_class_}")
             factory_type = (
@@ -165,14 +210,18 @@ def instruct(
             factory = factory_type.from_config(instructor.Mode(mode_) if mode_ is not None else mode_)
             create_fn = factory.create_with_completion if response_model else factory.create
             try:
-                async with asyncio.timeout(timeout):
+                async with asyncio.timeout(task_timeout):
                     result = await create_fn(
                         messages=conversation_,
                         response_model=response_model,  # type: ignore
                         model=model_,
                         max_tokens=max_tokens_,
                         temperature=temperature_,
-                        max_retries=max_retries_,
+                        max_retries=(
+                            max_retries_
+                            if isinstance(max_retries_, int)
+                            else create_async_retrying(max_retries_)  # type: ignore
+                        ),
                         **kwargs,
                     )
                 logger.debug("Row processed successfully")
