@@ -43,7 +43,7 @@ class AnthropicFactory(ClientFactory):
     ) -> "AnthropicFactory":
         """Get an anthropic client."""
         if kwargs.get("enable_caching", False):
-            return cls(get_anthropic_cache_aclient(mode or instructor.Mode.ANTHROPIC_JSON, base_url, api_key))
+            return cls(get_anthropic_cache_aclient(mode or instructor.Mode.ANTHROPIC_TOOLS, base_url, api_key))
         return cls(get_anthropic_aclient(mode or instructor.Mode.ANTHROPIC_JSON, base_url, api_key))
 
     def format_completion(self, completion: Message) -> ChatCompletion:
