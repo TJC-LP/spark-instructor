@@ -81,6 +81,7 @@ class SparkChatCompletionColumns(TypedDict, total=False):
     name: ColumnOrName
     tool_calls: ColumnOrName
     tool_call_id: ColumnOrName
+    cache_control: ColumnOrName
 
 
 def create_chat_completion_messages(messages: list[SparkChatCompletionColumns], strict: bool = True) -> Column:
@@ -140,13 +141,14 @@ def create_chat_completion_messages(messages: list[SparkChatCompletionColumns], 
     Raises:
         ValueError: If a required field (e.g., 'role') is missing from any message specification.
     """
-    all_keys: list[Literal["role", "content", "image_urls", "name", "tool_calls", "tool_call_id"]] = [
+    all_keys: list[Literal["role", "content", "image_urls", "name", "tool_calls", "tool_call_id", "cache_control"]] = [
         "role",
         "content",
         "image_urls",
         "name",
         "tool_calls",
         "tool_call_id",
+        "cache_control",
     ]
     cast_schema = create_spark_schema(SparkChatCompletionMessage)
     if not strict:

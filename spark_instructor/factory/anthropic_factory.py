@@ -15,7 +15,10 @@ from openai.types.chat.chat_completion_user_message_param import (
 )
 from pydantic import BaseModel
 
-from spark_instructor.client.base import get_anthropic_aclient
+from spark_instructor.client.base import (
+    get_anthropic_aclient,
+    get_anthropic_cache_aclient,
+)
 from spark_instructor.completions.anthropic_completions import (
     Message,
     transform_message_to_chat_completion,
@@ -39,6 +42,8 @@ class AnthropicFactory(ClientFactory):
         **kwargs,
     ) -> "AnthropicFactory":
         """Get an anthropic client."""
+        if kwargs.get("enable_caching", False):
+            return cls(get_anthropic_cache_aclient(mode or instructor.Mode.ANTHROPIC_JSON, base_url, api_key))
         return cls(get_anthropic_aclient(mode or instructor.Mode.ANTHROPIC_JSON, base_url, api_key))
 
     def format_completion(self, completion: Message) -> ChatCompletion:
@@ -54,7 +59,7 @@ class AnthropicFactory(ClientFactory):
             if ignore_system
             else [message() for message in messages.root]
         )
-        for message in messages_unpacked:
+        for j, message in enumerate(messages_unpacked):
             if message["role"] == "user":
                 casted_message = cast(ChatCompletionUserMessageParam, message)
                 if isinstance(casted_message["content"], list):
@@ -65,6 +70,8 @@ class AnthropicFactory(ClientFactory):
                             casted_message["content"][i] = convert_image_url_to_image_block_param(
                                 casted_content_image["image_url"]
                             )
+                    if messages.root[j].cache_control:
+                        casted_message["content"][-1]["cache_control"] = {"type": "ephemeral"}
         return messages_unpacked
 
     async def create(
@@ -79,8 +86,13 @@ class AnthropicFactory(ClientFactory):
     ) -> ChatCompletion:
         """Create a completion."""
         system_message = [m for m in messages.root if m.role == "system"].pop()
+        system_content = system_message.as_system()["content"]
         completion = await self.async_client.chat.completions.create(
-            system=system_message.as_system()["content"],
+            system=(
+                system_content
+                if not system_message.cache_control
+                else [{"type": "text", "text": system_content, "cache_control": {"type": "ephemeral"}}]  # type: ignore
+            ),
             response_model=response_model,  # type: ignore
             messages=self.format_messages(messages, ignore_system=True),
             model=model,

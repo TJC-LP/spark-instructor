@@ -570,10 +570,38 @@ def test_create_object_and_completion_from_messages_udf(spark, mock_model_class_
                                                         "fields": [
                                                             {
                                                                 "metadata": {},
+                                                                "name": "audio_tokens",
+                                                                "nullable": True,
+                                                                "type": "integer",
+                                                            },
+                                                            {
+                                                                "metadata": {},
                                                                 "name": "reasoning_tokens",
                                                                 "nullable": True,
                                                                 "type": "integer",
-                                                            }
+                                                            },
+                                                        ],
+                                                        "type": "struct",
+                                                    },
+                                                },
+                                                {
+                                                    "metadata": {},
+                                                    "name": "prompt_tokens_details",
+                                                    "nullable": True,
+                                                    "type": {
+                                                        "fields": [
+                                                            {
+                                                                "metadata": {},
+                                                                "name": "audio_tokens",
+                                                                "nullable": True,
+                                                                "type": "integer",
+                                                            },
+                                                            {
+                                                                "metadata": {},
+                                                                "name": "cached_tokens",
+                                                                "nullable": True,
+                                                                "type": "integer",
+                                                            },
                                                         ],
                                                         "type": "struct",
                                                     },

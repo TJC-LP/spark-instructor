@@ -52,6 +52,7 @@ class SparkChatCompletionMessage(BaseModel):
         name (Optional[str]): The name of the entity associated with the message.
         tool_calls (Optional[List[ChatCompletionMessageToolCallParamPD]]): Tool calls made in the message (for 'assistant' role).
         tool_call_id (Optional[str]): The ID of the tool call (for 'tool' role).
+        cache_control (Optional[bool]): Whether to use Anthropic's prompt caching feature (beta).
 
     The class provides methods to format the message for different roles and serialize it to OpenAI-compatible types.
     """  # noqa: E501
@@ -64,6 +65,7 @@ class SparkChatCompletionMessage(BaseModel):
         None, description="The tool calls of the message (`assistant` role only)"
     )
     tool_call_id: Optional[str] = Field(None, description="The tool call id of the message (`tool` role only).")
+    cache_control: Optional[bool] = Field(None, description="Whether to use Anthropic cache control.")
 
     def content_formatted(self) -> List[Union[ChatCompletionContentPartTextParam, ChatCompletionContentPartImageParam]]:
         """Format the message content, including any images, into a list of content parts.
