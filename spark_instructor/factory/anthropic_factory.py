@@ -72,6 +72,10 @@ class AnthropicFactory(ClientFactory):
                             )
                     if messages.root[j].cache_control:
                         casted_message["content"][-1]["cache_control"] = {"type": "ephemeral"}
+            elif message["role"] == "system" and messages.root[j].cache_control and isinstance(message["content"], str):
+                message["content"] = [
+                    {"type": "text", "text": message["content"], "cache_control": {"type": "ephemeral"}}  # type: ignore
+                ]  # type: ignore
         return messages_unpacked
 
     async def create(
@@ -86,13 +90,8 @@ class AnthropicFactory(ClientFactory):
     ) -> ChatCompletion:
         """Create a completion."""
         system_message = [m for m in messages.root if m.role == "system"].pop()
-        system_content = system_message.as_system()["content"]
         completion = await self.async_client.chat.completions.create(
-            system=(
-                system_content
-                if not system_message.cache_control
-                else [{"type": "text", "text": system_content, "cache_control": {"type": "ephemeral"}}]  # type: ignore
-            ),
+            system=system_message.as_system()["content"],
             response_model=response_model,  # type: ignore
             messages=self.format_messages(messages, ignore_system=True),
             model=model,
