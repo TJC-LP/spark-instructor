@@ -217,7 +217,7 @@ def instruct(
             factory = factory_type.from_config(instructor.Mode(mode_) if mode_ is not None else mode_)
             create_fn = factory.create_with_completion if response_model else factory.create
             try:
-                async with asyncio.timeout(task_timeout):
+                async with asyncio.timeout(task_timeout):  # type: ignore
                     result = await create_fn(
                         messages=conversation_,
                         response_model=response_model,  # type: ignore

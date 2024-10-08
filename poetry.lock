@@ -1326,13 +1326,13 @@ files = [
 
 [[package]]
 name = "instructor"
-version = "1.5.1"
+version = "1.5.2"
 description = "structured outputs for llm"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "instructor-1.5.1-py3-none-any.whl", hash = "sha256:bad5e458cd5e6fa3f511e4984c156a9622377bb58ebc41c345f70efb7e2b8b1b"},
-    {file = "instructor-1.5.1.tar.gz", hash = "sha256:e71e1cb4c4745cd639f1773166ab471c4bb4b22ac498fd690c89fd0eb5bfbe00"},
+    {file = "instructor-1.5.2-py3-none-any.whl", hash = "sha256:da25abbf1ab792fb094992f1d9ce593e26fe458cb1f9a8e7ebf9d68f3f2c757a"},
+    {file = "instructor-1.5.2.tar.gz", hash = "sha256:fdd5ccbca21b4c558a24e9ba12c84afd907e65153a39d035f47c25800011a977"},
 ]
 
 [package.dependencies]
@@ -2121,13 +2121,13 @@ files = [
 
 [[package]]
 name = "openai"
-version = "1.51.1"
+version = "1.51.2"
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.7.1"
 files = [
-    {file = "openai-1.51.1-py3-none-any.whl", hash = "sha256:035ba637bef7523282b5b8d9f2f5fdc0bb5bc18d52af2bfc7f64e4a7b0a169fb"},
-    {file = "openai-1.51.1.tar.gz", hash = "sha256:a4908d68e0a1f4bcb45cbaf273c5fbdc3a4fa6239bb75128b58b94f7d5411563"},
+    {file = "openai-1.51.2-py3-none-any.whl", hash = "sha256:5c5954711cba931423e471c37ff22ae0fd3892be9b083eee36459865fbbb83fa"},
+    {file = "openai-1.51.2.tar.gz", hash = "sha256:c6a51fac62a1ca9df85a522e462918f6bb6bc51a8897032217e453a0730123a6"},
 ]
 
 [package.dependencies]
@@ -4011,4 +4011,4 @@ databricks = ["databricks-connect", "databricks-sdk"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10,<4.0.0"
-content-hash = "0a6e2da11951dfcf28fcc4e4508ac8680013e40553e8cb8cddba21f76e268b4b"
+content-hash = "514e97bf3f3d29078127509b7a50350c96b2cb391db1c752ec0cca8d2968d059"
