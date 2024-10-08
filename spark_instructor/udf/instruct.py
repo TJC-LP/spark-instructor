@@ -93,6 +93,7 @@ def instruct(
     task_timeout: float = 600,
     logger: logging.Logger = default_logger,
     safe_mode: bool = False,
+    enable_caching: bool = False,
     **kwargs,
 ) -> Callable:
     """Create a pandas UDF for serving model responses in a Spark environment.
@@ -118,6 +119,7 @@ def instruct(
         logger (Logger): Logger to use.
         safe_mode (bool): If True, return a null row instead of raising an exception when an error occurs.
             Recommended for large batches.
+        enable_caching (bool): If True, enable Anthropic prompt caching.
         **kwargs: Additional keyword arguments to pass to the model creation function.
 
     Returns:
@@ -214,7 +216,9 @@ def instruct(
                 if model_class_ is not None
                 else registry.get_factory_from_model(model_)
             )
-            factory = factory_type.from_config(instructor.Mode(mode_) if mode_ is not None else mode_)
+            factory = factory_type.from_config(
+                instructor.Mode(mode_) if mode_ is not None else mode_, enable_caching=enable_caching
+            )
             create_fn = factory.create_with_completion if response_model else factory.create
             try:
                 async with asyncio.timeout(task_timeout):  # type: ignore
