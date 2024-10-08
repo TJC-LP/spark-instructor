@@ -19,7 +19,7 @@ documentation = "https://tjc-lp.github.io/spark-instructor/"
 [tool.poetry.dependencies]
 python = "^3.10,<4.0.0"
 pandas = ">=1.5.3"
-instructor = "^1.3.4"
+instructor = "^1.3.4,<=1.5.1"
 python-dotenv = "^1.0.1"
 sparkdantic = "^1.1.0"
 pyarrow = ">=8.0.0"
