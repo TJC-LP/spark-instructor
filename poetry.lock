@@ -4016,4 +4016,4 @@ databricks = ["databricks-connect", "databricks-sdk"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10,<4.0.0"
-content-hash = "ce82cba931cc7694f692af33f9a304fbcd76b28a5418c350af6c7721ad8ea783"
+content-hash = "b03351b958eb5adb5f504307210a67987d08c957252332fec9e8cba0647f3b96"

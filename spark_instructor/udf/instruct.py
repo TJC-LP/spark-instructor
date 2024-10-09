@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import sys
 from typing import Callable, Optional, Type, TypedDict, TypeVar
 
 import instructor
@@ -21,6 +22,11 @@ from spark_instructor.completions import OpenAICompletion
 from spark_instructor.registry import ClientRegistry
 from spark_instructor.types.base import SparkChatCompletionMessages
 from spark_instructor.udf.message_router import ModelSerializer
+
+if sys.version_info >= (3, 11):
+    from asyncio import timeout
+else:
+    from async_timeout import timeout
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -221,7 +227,7 @@ def instruct(
             )
             create_fn = factory.create_with_completion if response_model else factory.create
             try:
-                async with asyncio.timeout(task_timeout):  # type: ignore
+                async with timeout(task_timeout):
                     result = await create_fn(
                         messages=conversation_,
                         response_model=response_model,  # type: ignore
