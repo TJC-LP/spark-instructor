@@ -14,6 +14,7 @@ import time
 from typing import List, Literal, Optional, cast
 
 from anthropic.types import Message
+from anthropic.types.beta.prompt_caching import PromptCachingBetaMessage
 from anthropic.types.text_block import TextBlock
 from anthropic.types.tool_use_block import ToolUseBlock
 from openai.types.chat import (
@@ -23,7 +24,7 @@ from openai.types.chat import (
 )
 from openai.types.chat.chat_completion import Choice
 from openai.types.chat.chat_completion_message_tool_call import Function
-from openai.types.completion_usage import CompletionUsage
+from openai.types.completion_usage import CompletionUsage, PromptTokensDetails
 
 from spark_instructor.completions.base import BaseCompletion, BaseModel
 
@@ -86,7 +87,9 @@ def anthropic_tool_call_to_openai_tool_call(block: ToolUseBlock) -> ChatCompleti
     )
 
 
-def transform_message_to_chat_completion(message: Message, enable_created_at: bool = False) -> ChatCompletion:
+def transform_message_to_chat_completion(
+    message: Message | PromptCachingBetaMessage, enable_created_at: bool = False
+) -> ChatCompletion:
     """Transform a Message object to a ChatCompletion object.
 
     This function converts the structure of a Message (from the original schema)
@@ -95,7 +98,7 @@ def transform_message_to_chat_completion(message: Message, enable_created_at: bo
     and restructures usage information.
 
     Args:
-        message (Message): The original Message object to be transformed.
+        message (Message | PromptCachingBetaMessage): The original Message object to be transformed.
         enable_created_at (bool): Whether to include a unix timestamp.
 
     Returns:
@@ -132,10 +135,16 @@ def transform_message_to_chat_completion(message: Message, enable_created_at: bo
     choice = Choice(finish_reason=finish_reason, index=0, message=chat_message)  # Assuming single choice
 
     # Create CompletionUsage
+    prompt_tokens_details = (
+        PromptTokensDetails(cached_tokens=message.usage.cache_read_input_tokens)
+        if isinstance(message, PromptCachingBetaMessage)
+        else None
+    )
     usage = CompletionUsage(
         completion_tokens=message.usage.output_tokens,
         prompt_tokens=message.usage.input_tokens,
         total_tokens=message.usage.input_tokens + message.usage.output_tokens,
+        prompt_tokens_details=prompt_tokens_details,
     )
 
     # Create the ChatCompletion

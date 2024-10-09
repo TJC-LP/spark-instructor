@@ -1,6 +1,7 @@
 from pyspark.sql.functions import array, col, lit, struct
 from pyspark.sql.types import (
     ArrayType,
+    BooleanType,
     MapType,
     NullType,
     Row,
@@ -135,6 +136,7 @@ def test_create_chat_completion_messages(spark):
                                 True,
                             ),
                             StructField("tool_call_id", StringType(), True),
+                            StructField("cache_control", BooleanType(), True),
                         ]
                     ),
                     False,
@@ -143,7 +145,6 @@ def test_create_chat_completion_messages(spark):
             )
         ]
     )
-
     result_data = df.collect()[0]["messages"]
     assert len(result_data) == 2
     assert result_data[0]["role"] == "system"
@@ -211,6 +212,7 @@ def test_create_chat_completion_messages_nullable(spark, valid_base64):
                                 True,
                             ),
                             StructField("tool_call_id", StringType(), True),
+                            StructField("cache_control", BooleanType(), True),
                         ]
                     ),
                     False,

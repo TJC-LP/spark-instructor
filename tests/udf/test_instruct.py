@@ -367,10 +367,38 @@ def test_instruct_execution(spark, mock_registry):
                                                         "fields": [
                                                             {
                                                                 "metadata": {},
+                                                                "name": "audio_tokens",
+                                                                "nullable": True,
+                                                                "type": "integer",
+                                                            },
+                                                            {
+                                                                "metadata": {},
                                                                 "name": "reasoning_tokens",
                                                                 "nullable": True,
                                                                 "type": "integer",
-                                                            }
+                                                            },
+                                                        ],
+                                                        "type": "struct",
+                                                    },
+                                                },
+                                                {
+                                                    "metadata": {},
+                                                    "name": "prompt_tokens_details",
+                                                    "nullable": True,
+                                                    "type": {
+                                                        "fields": [
+                                                            {
+                                                                "metadata": {},
+                                                                "name": "audio_tokens",
+                                                                "nullable": True,
+                                                                "type": "integer",
+                                                            },
+                                                            {
+                                                                "metadata": {},
+                                                                "name": "cached_tokens",
+                                                                "nullable": True,
+                                                                "type": "integer",
+                                                            },
                                                         ],
                                                         "type": "struct",
                                                     },
