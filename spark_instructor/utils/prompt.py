@@ -4,10 +4,15 @@ from typing import Literal, Optional, Union
 
 import pyspark.sql.functions as f
 from pyspark.sql.column import Column
+from pyspark.sql.types import ArrayType, BooleanType, StringType
 from sparkdantic.model import create_spark_schema
 from typing_extensions import Required, TypedDict
 
-from spark_instructor.types.base import SparkChatCompletionMessage
+from spark_instructor.types.base import (
+    ChatCompletionMessageToolCallParamPD,
+    ImageURLPD,
+    SparkChatCompletionMessage,
+)
 from spark_instructor.utils.types import make_spark_schema_nullable
 
 ColumnOrName = Union[Column, str]
@@ -151,7 +156,11 @@ def create_chat_completion_messages(messages: list[SparkChatCompletionColumns], 
         "cache_control",
     ]
     cast_schema = create_spark_schema(SparkChatCompletionMessage)
+    image_urls_type = ArrayType(create_spark_schema(ImageURLPD))
+    tool_calls_type = ArrayType(create_spark_schema(ChatCompletionMessageToolCallParamPD))
     if not strict:
+        image_urls_type = make_spark_schema_nullable(image_urls_type)
+        tool_calls_type = make_spark_schema_nullable(tool_calls_type)
         cast_schema = make_spark_schema_nullable(cast_schema)
 
     def create_struct(message: SparkChatCompletionColumns):
@@ -161,8 +170,14 @@ def create_chat_completion_messages(messages: list[SparkChatCompletionColumns], 
                 val = message[key]
                 struct_fields.append(f.col(val).alias(key) if isinstance(val, str) else val.alias(key))
             else:
-                struct_fields.append(f.lit(None).alias(key))
-
+                if key == "image_urls":
+                    struct_fields.append(f.lit(None).cast(image_urls_type).alias(key))
+                elif key == "tool_calls":
+                    struct_fields.append(f.lit(None).cast(tool_calls_type).alias(key))
+                elif key == "cache_control":
+                    struct_fields.append(f.lit(None).cast(BooleanType()).alias(key))
+                else:
+                    struct_fields.append(f.lit(None).cast(StringType()).alias(key))
         return f.struct(*struct_fields).cast(cast_schema)
 
     return f.array(*[create_struct(message) for message in messages])
