@@ -11,7 +11,7 @@ import pandas as pd
 from pydantic import BaseModel
 from pyspark.sql import Column
 from pyspark.sql.functions import lit, pandas_udf
-from pyspark.sql.types import StringType, IntegerType
+from pyspark.sql.types import IntegerType, StringType
 from tenacity import (
     AsyncRetrying,
     retry_if_exception_type,
@@ -353,7 +353,9 @@ def instruct(
         if temperature is None:
             temperature = lit(default_temperature)
         if max_retries is None:
-            max_retries = lit(default_max_retries) if isinstance(default_max_retries, int) else lit(None).cast(IntegerType())
+            max_retries = (
+                lit(default_max_retries) if isinstance(default_max_retries, int) else lit(None).cast(IntegerType())
+            )
         if model_class is None:
             model_class = lit(default_model_class) if default_model_class else lit(None).cast(StringType())
         if mode is None:
