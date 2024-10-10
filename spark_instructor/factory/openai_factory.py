@@ -34,3 +34,26 @@ class OpenAIFactory(ClientFactory):
     def format_completion(self, completion: ChatCompletion) -> ChatCompletion:
         """Return standard OpenAI completion message."""
         return completion
+
+
+class O1Factory(OpenAIFactory):
+    """An OpenAI o1 factory.
+
+    Used as the factory for o1 models which have unique functionality.
+    """
+
+    @classmethod
+    def from_config(
+        cls,
+        mode: Optional[instructor.Mode] = None,
+        base_url: Optional[str] = None,
+        api_key: Optional[str] = None,
+        **kwargs
+    ) -> "O1Factory":
+        """Create an OpenAI factory from custom inputs."""
+        return cls(get_openai_aclient(mode or instructor.Mode.JSON_O1, base_url, api_key))
+
+    def format_messages(self, messages: SparkChatCompletionMessages) -> List[ChatCompletionMessageParam]:
+        """Format messages by using default callable."""
+        # Ignore system messages and images as they are not yet supported
+        return [message(string_only=True) for message in messages.root if not message.role == "system"]
