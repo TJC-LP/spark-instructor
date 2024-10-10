@@ -51,25 +51,25 @@ def test_instruct_execution(spark, mock_registry):
                             "nullable": True,
                             "type": {
                                 "fields": [
-                                    {"metadata": {}, "name": "id", "nullable": False, "type": "string"},
+                                    {"metadata": {}, "name": "id", "nullable": True, "type": "string"},
                                     {
                                         "metadata": {},
                                         "name": "choices",
-                                        "nullable": False,
+                                        "nullable": True,
                                         "type": {
-                                            "containsNull": False,
+                                            "containsNull": True,
                                             "elementType": {
                                                 "fields": [
                                                     {
                                                         "metadata": {},
                                                         "name": "finish_reason",
-                                                        "nullable": False,
+                                                        "nullable": True,
                                                         "type": "string",
                                                     },
                                                     {
                                                         "metadata": {},
                                                         "name": "index",
-                                                        "nullable": False,
+                                                        "nullable": True,
                                                         "type": "integer",
                                                     },
                                                     {
@@ -89,7 +89,7 @@ def test_instruct_execution(spark, mock_registry):
                                                                                 {
                                                                                     "metadata": {},
                                                                                     "name": "token",
-                                                                                    "nullable": False,
+                                                                                    "nullable": True,
                                                                                     "type": "string",
                                                                                 },
                                                                                 {
@@ -97,7 +97,7 @@ def test_instruct_execution(spark, mock_registry):
                                                                                     "name": "bytes",
                                                                                     "nullable": True,
                                                                                     "type": {
-                                                                                        "containsNull": False,
+                                                                                        "containsNull": True,
                                                                                         "elementType": "integer",
                                                                                         "type": "array",
                                                                                     },
@@ -105,21 +105,21 @@ def test_instruct_execution(spark, mock_registry):
                                                                                 {
                                                                                     "metadata": {},
                                                                                     "name": "logprob",
-                                                                                    "nullable": False,
+                                                                                    "nullable": True,
                                                                                     "type": "double",
                                                                                 },
                                                                                 {
                                                                                     "metadata": {},
                                                                                     "name": "top_logprobs",
-                                                                                    "nullable": False,
+                                                                                    "nullable": True,
                                                                                     "type": {
-                                                                                        "containsNull": False,
+                                                                                        "containsNull": True,
                                                                                         "elementType": {
                                                                                             "fields": [
                                                                                                 {
                                                                                                     "metadata": {},
                                                                                                     "name": "token",
-                                                                                                    "nullable": False,
+                                                                                                    "nullable": True,
                                                                                                     "type": "string",
                                                                                                 },
                                                                                                 {
@@ -127,7 +127,7 @@ def test_instruct_execution(spark, mock_registry):
                                                                                                     "name": "bytes",
                                                                                                     "nullable": True,
                                                                                                     "type": {
-                                                                                                        "containsNull": False,  # noqa: E501
+                                                                                                        "containsNull": True,  # noqa: E501
                                                                                                         "elementType": "integer",  # noqa: E501
                                                                                                         "type": "array",
                                                                                                     },
@@ -135,7 +135,7 @@ def test_instruct_execution(spark, mock_registry):
                                                                                                 {
                                                                                                     "metadata": {},
                                                                                                     "name": "logprob",
-                                                                                                    "nullable": False,
+                                                                                                    "nullable": True,
                                                                                                     "type": "double",
                                                                                                 },
                                                                                             ],
@@ -161,7 +161,7 @@ def test_instruct_execution(spark, mock_registry):
                                                                                 {
                                                                                     "metadata": {},
                                                                                     "name": "token",
-                                                                                    "nullable": False,
+                                                                                    "nullable": True,
                                                                                     "type": "string",
                                                                                 },
                                                                                 {
@@ -169,7 +169,7 @@ def test_instruct_execution(spark, mock_registry):
                                                                                     "name": "bytes",
                                                                                     "nullable": True,
                                                                                     "type": {
-                                                                                        "containsNull": False,
+                                                                                        "containsNull": True,
                                                                                         "elementType": "integer",
                                                                                         "type": "array",
                                                                                     },
@@ -177,21 +177,21 @@ def test_instruct_execution(spark, mock_registry):
                                                                                 {
                                                                                     "metadata": {},
                                                                                     "name": "logprob",
-                                                                                    "nullable": False,
+                                                                                    "nullable": True,
                                                                                     "type": "double",
                                                                                 },
                                                                                 {
                                                                                     "metadata": {},
                                                                                     "name": "top_logprobs",
-                                                                                    "nullable": False,
+                                                                                    "nullable": True,
                                                                                     "type": {
-                                                                                        "containsNull": False,
+                                                                                        "containsNull": True,
                                                                                         "elementType": {
                                                                                             "fields": [
                                                                                                 {
                                                                                                     "metadata": {},
                                                                                                     "name": "token",
-                                                                                                    "nullable": False,
+                                                                                                    "nullable": True,
                                                                                                     "type": "string",
                                                                                                 },
                                                                                                 {
@@ -199,7 +199,7 @@ def test_instruct_execution(spark, mock_registry):
                                                                                                     "name": "bytes",
                                                                                                     "nullable": True,
                                                                                                     "type": {
-                                                                                                        "containsNull": False,  # noqa: E501
+                                                                                                        "containsNull": True,  # noqa: E501
                                                                                                         "elementType": "integer",  # noqa: E501
                                                                                                         "type": "array",
                                                                                                     },
@@ -207,7 +207,7 @@ def test_instruct_execution(spark, mock_registry):
                                                                                                 {
                                                                                                     "metadata": {},
                                                                                                     "name": "logprob",
-                                                                                                    "nullable": False,
+                                                                                                    "nullable": True,
                                                                                                     "type": "double",
                                                                                                 },
                                                                                             ],
@@ -229,7 +229,7 @@ def test_instruct_execution(spark, mock_registry):
                                                     {
                                                         "metadata": {},
                                                         "name": "message",
-                                                        "nullable": False,
+                                                        "nullable": True,
                                                         "type": {
                                                             "fields": [
                                                                 {
@@ -247,7 +247,7 @@ def test_instruct_execution(spark, mock_registry):
                                                                 {
                                                                     "metadata": {},
                                                                     "name": "role",
-                                                                    "nullable": False,
+                                                                    "nullable": True,
                                                                     "type": "string",
                                                                 },
                                                                 {
@@ -259,13 +259,13 @@ def test_instruct_execution(spark, mock_registry):
                                                                             {
                                                                                 "metadata": {},
                                                                                 "name": "arguments",
-                                                                                "nullable": False,
+                                                                                "nullable": True,
                                                                                 "type": "string",
                                                                             },
                                                                             {
                                                                                 "metadata": {},
                                                                                 "name": "name",
-                                                                                "nullable": False,
+                                                                                "nullable": True,
                                                                                 "type": "string",
                                                                             },
                                                                         ],
@@ -283,25 +283,25 @@ def test_instruct_execution(spark, mock_registry):
                                                                                 {
                                                                                     "metadata": {},
                                                                                     "name": "id",
-                                                                                    "nullable": False,
+                                                                                    "nullable": True,
                                                                                     "type": "string",
                                                                                 },
                                                                                 {
                                                                                     "metadata": {},
                                                                                     "name": "function",
-                                                                                    "nullable": False,
+                                                                                    "nullable": True,
                                                                                     "type": {
                                                                                         "fields": [
                                                                                             {
                                                                                                 "metadata": {},
                                                                                                 "name": "arguments",
-                                                                                                "nullable": False,
+                                                                                                "nullable": True,
                                                                                                 "type": "string",
                                                                                             },
                                                                                             {
                                                                                                 "metadata": {},
                                                                                                 "name": "name",
-                                                                                                "nullable": False,
+                                                                                                "nullable": True,
                                                                                                 "type": "string",
                                                                                             },
                                                                                         ],
@@ -311,7 +311,7 @@ def test_instruct_execution(spark, mock_registry):
                                                                                 {
                                                                                     "metadata": {},
                                                                                     "name": "type",
-                                                                                    "nullable": False,
+                                                                                    "nullable": True,
                                                                                     "type": "string",
                                                                                 },
                                                                             ],
@@ -330,9 +330,9 @@ def test_instruct_execution(spark, mock_registry):
                                             "type": "array",
                                         },
                                     },
-                                    {"metadata": {}, "name": "created", "nullable": False, "type": "integer"},
-                                    {"metadata": {}, "name": "model", "nullable": False, "type": "string"},
-                                    {"metadata": {}, "name": "object", "nullable": False, "type": "string"},
+                                    {"metadata": {}, "name": "created", "nullable": True, "type": "integer"},
+                                    {"metadata": {}, "name": "model", "nullable": True, "type": "string"},
+                                    {"metadata": {}, "name": "object", "nullable": True, "type": "string"},
                                     {"metadata": {}, "name": "service_tier", "nullable": True, "type": "string"},
                                     {"metadata": {}, "name": "system_fingerprint", "nullable": True, "type": "string"},
                                     {
@@ -344,19 +344,19 @@ def test_instruct_execution(spark, mock_registry):
                                                 {
                                                     "metadata": {},
                                                     "name": "completion_tokens",
-                                                    "nullable": False,
+                                                    "nullable": True,
                                                     "type": "integer",
                                                 },
                                                 {
                                                     "metadata": {},
                                                     "name": "prompt_tokens",
-                                                    "nullable": False,
+                                                    "nullable": True,
                                                     "type": "integer",
                                                 },
                                                 {
                                                     "metadata": {},
                                                     "name": "total_tokens",
-                                                    "nullable": False,
+                                                    "nullable": True,
                                                     "type": "integer",
                                                 },
                                                 {
