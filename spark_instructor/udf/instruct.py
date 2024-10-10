@@ -4,7 +4,7 @@ import asyncio
 import json
 import logging
 import sys
-from typing import Callable, Optional, Type, TypedDict, TypeVar
+from typing import Any, Callable, Optional, Type, TypedDict, TypeVar
 
 import instructor
 import pandas as pd
@@ -215,7 +215,7 @@ def instruct(
             max_tokens_: int,
             temperature_: float,
             max_retries_: int | AsyncRetryingConfig,
-        ):
+        ) -> Optional[Any]:
             logger.debug(f"Processing row with model: {model_}, model_class: {model_class_}")
             factory_type = (
                 registry.get_factory(model_class_)
@@ -275,8 +275,10 @@ def instruct(
                 )
                 if result is None:
                     return result
-                if response_model:
+                if not response_model:
+                    # Basic text response
                     return json.dumps({completion_model_name: result.model_dump()})
+                # Structured response
                 return json.dumps(
                     {
                         response_model_name: result[0].model_dump(),

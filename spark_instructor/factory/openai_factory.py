@@ -59,7 +59,7 @@ class O1Factory(OpenAIFactory):
     def format_messages(self, messages: SparkChatCompletionMessages) -> List[ChatCompletionMessageParam]:
         """Format messages by using default callable."""
         # Ignore system messages and images as they are not yet supported
-        return [message(string_only=True) for message in messages.root if not message.role == "system"]
+        return [message(string_only=True) for message in messages.root if message.role != "system"]
 
     async def create(
         self,
@@ -83,6 +83,7 @@ class O1Factory(OpenAIFactory):
             model (str): The name or identifier of the AI model to use.
             max_tokens (int): The maximum number of tokens in the completion response.
             temperature (float): The sampling temperature for the model's output.
+                Always set to 1 regardless of input (not supported for o1 yet).
             max_retries (int): The maximum number of retry attempts for failed requests.
             **kwargs: Additional keyword arguments for the API request.
 
@@ -95,7 +96,7 @@ class O1Factory(OpenAIFactory):
             model=model,
             max_retries=max_retries,
             max_completion_tokens=max_tokens,
-            temperature=temperature,
+            temperature=1,
             **kwargs,
         )
         return self.format_completion(cast(ChatCompletion, completion))
@@ -122,6 +123,7 @@ class O1Factory(OpenAIFactory):
             model (str): The name or identifier of the AI model to use.
             max_tokens (int): The maximum number of tokens in the completion response.
             temperature (float): The sampling temperature for the model's output.
+                Always set to 1 regardless of input (not supported by o1 yet).
             max_retries (int): The maximum number of retry attempts for failed requests.
             **kwargs: Additional keyword arguments for the API request.
 
@@ -134,7 +136,7 @@ class O1Factory(OpenAIFactory):
             model=model,
             max_retries=max_retries,
             max_completion_tokens=max_tokens,
-            temperature=temperature,
+            temperature=1,
             **kwargs,
         )
         return pydantic_object, self.format_completion(completion)
