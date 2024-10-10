@@ -228,15 +228,11 @@ def instruct(
             create_fn = factory.create_with_completion if response_model else factory.create
             try:
                 async with timeout(task_timeout):
-                    # Handle o1 specific tokenization
-                    if model_.startswith("o1"):
-                        kwargs["max_completion_tokens"] = max_tokens_
-                    else:
-                        kwargs["max_tokens"] = max_tokens_
                     result = await create_fn(
                         messages=SparkChatCompletionMessages.model_validate_json(conversation_),
                         response_model=response_model,  # type: ignore
                         model=model_,
+                        max_tokens=max_tokens_,
                         temperature=temperature_,
                         max_retries=(
                             max_retries_
