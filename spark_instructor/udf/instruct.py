@@ -1,7 +1,6 @@
 """Module for defining spark instruct functions."""
 
 import asyncio
-import json
 import logging
 import sys
 from typing import Any, Callable, Optional, Type, TypedDict, TypeVar
@@ -10,7 +9,7 @@ import instructor
 import pandas as pd
 from pydantic import BaseModel
 from pyspark.sql import Column
-from pyspark.sql.functions import from_json, lit, pandas_udf, to_json
+from pyspark.sql.functions import lit, pandas_udf, to_json
 from pyspark.sql.types import IntegerType, StringType
 from tenacity import (
     AsyncRetrying,
@@ -179,7 +178,7 @@ def instruct(
     response_model_name = model_serializer.response_model_name
     completion_model_name = model_serializer.completion_model_name
 
-    @pandas_udf(returnType=StringType())  # type: ignore
+    @pandas_udf(returnType=model_serializer.spark_schema)  # type: ignore
     def _pandas_udf(
         conversation: pd.Series,
         model: pd.Series,
@@ -188,7 +187,7 @@ def instruct(
         max_tokens: pd.Series,
         temperature: pd.Series,
         max_retries: pd.Series,
-    ) -> pd.Series:
+    ) -> pd.DataFrame:
         """Pandas UDF for processing conversations and generating model responses.
 
         Args:
@@ -262,7 +261,7 @@ def instruct(
             max_tokens_,
             temperature_,
             max_retries_,
-        ) -> str | None:
+        ) -> dict[str, Any] | None:
             async with semaphore:
                 result = await process_row(
                     conversation_,
@@ -275,16 +274,14 @@ def instruct(
                 )
                 if result is None:
                     return result
-                if not response_model:
+                if not response_model or not response_model_name:
                     # Basic text response
-                    return json.dumps({completion_model_name: result.model_dump()})
+                    return {completion_model_name: result.model_dump()}
                 # Structured response
-                return json.dumps(
-                    {
-                        response_model_name: result[0].model_dump(),
-                        completion_model_name: result[1].model_dump(),
-                    }
-                )
+                return {
+                    response_model_name: result[0].model_dump(),
+                    completion_model_name: result[1].model_dump(),
+                }
 
         async def process_all_rows():
             tasks = [
@@ -360,9 +357,6 @@ def instruct(
         if mode is None:
             mode = lit(default_mode.value) if default_mode else lit(None).cast(StringType())
 
-        return from_json(
-            _pandas_udf(to_json(conversation), model, model_class, mode, max_tokens, temperature, max_retries),
-            model_serializer.spark_schema,
-        )
+        return _pandas_udf(to_json(conversation), model, model_class, mode, max_tokens, temperature, max_retries)
 
     return pandas_udf_wrapped
