@@ -7,6 +7,7 @@ from spark_instructor import is_anthropic_available
 from spark_instructor.factory import (
     ClientFactory,
     DatabricksFactory,
+    O1Factory,
     OllamaFactory,
     OpenAIFactory,
 )
@@ -22,12 +23,9 @@ def get_default_factories() -> Dict[str, Type[ClientFactory]]:
             "openai": OpenAIFactory,
             "databricks": DatabricksFactory,
             "ollama": OllamaFactory,
+            "o1": O1Factory,
         }
-    return {
-        "openai": OpenAIFactory,
-        "databricks": DatabricksFactory,
-        "ollama": OllamaFactory,
-    }
+    return {"openai": OpenAIFactory, "databricks": DatabricksFactory, "ollama": OllamaFactory, "o1": O1Factory}
 
 
 @dataclass
@@ -56,7 +54,13 @@ class ClientRegistry:
 
     factories: Dict[str, Type[ClientFactory]] = field(default_factory=get_default_factories)
     model_map: Dict[str, str] = field(
-        default_factory=lambda: {"databricks": "databricks", "gpt": "openai", "claude": "anthropic", "llama": "ollama"}
+        default_factory=lambda: {
+            "databricks": "databricks",
+            "gpt": "openai",
+            "claude": "anthropic",
+            "llama": "ollama",
+            "o1": "o1",
+        }
     )
 
     def register(self, model_class: str, factory_class: Type[ClientFactory]):

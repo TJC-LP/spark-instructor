@@ -1,16 +1,15 @@
 """Module for defining spark instruct functions."""
 
 import asyncio
-import json
 import logging
 import sys
-from typing import Callable, Optional, Type, TypedDict, TypeVar
+from typing import Any, Callable, Optional, Type, TypedDict, TypeVar
 
 import instructor
 import pandas as pd
 from pydantic import BaseModel
 from pyspark.sql import Column
-from pyspark.sql.functions import lit, pandas_udf
+from pyspark.sql.functions import lit, pandas_udf, to_json
 from pyspark.sql.types import IntegerType, StringType
 from tenacity import (
     AsyncRetrying,
@@ -176,10 +175,12 @@ def instruct(
         f"{concurrency_limit}, timeout: {task_timeout}, safe_mode: {safe_mode}"
     )
     model_serializer = ModelSerializer(response_model, OpenAICompletion)
+    response_model_name = model_serializer.response_model_name
+    completion_model_name = model_serializer.completion_model_name
 
     @pandas_udf(returnType=model_serializer.spark_schema)  # type: ignore
     def _pandas_udf(
-        conversation: pd.DataFrame,
+        conversation: pd.Series,
         model: pd.Series,
         model_class: pd.Series,
         mode: pd.Series,
@@ -190,7 +191,7 @@ def instruct(
         """Pandas UDF for processing conversations and generating model responses.
 
         Args:
-            conversation (pd.DataFrame): DataFrame containing conversation data.
+            conversation (pd.Series): DataFrame containing conversation data.
             model (pd.Series): Series containing model names.
             model_class (pd.Series): Series containing model classes.
             mode (pd.Series): Series containing modes.
@@ -203,20 +204,17 @@ def instruct(
         """
         # Convert dataframe rows to list of Conversation objects
         logger.info(f"Processing batch of {len(conversation)} conversations")
-        conversations = [
-            SparkChatCompletionMessages.model_validate(x) for x in json.loads(conversation.to_json(orient="records"))
-        ]
         semaphore = asyncio.Semaphore(concurrency_limit)
 
         async def process_row(
-            conversation_: SparkChatCompletionMessages,
+            conversation_: str,
             model_: str,
             model_class_: str,
             mode_: str,
             max_tokens_: int,
             temperature_: float,
             max_retries_: int | AsyncRetryingConfig,
-        ):
+        ) -> Optional[Any]:
             logger.debug(f"Processing row with model: {model_}, model_class: {model_class_}")
             factory_type = (
                 registry.get_factory(model_class_)
@@ -230,7 +228,7 @@ def instruct(
             try:
                 async with timeout(task_timeout):
                     result = await create_fn(
-                        messages=conversation_,
+                        messages=SparkChatCompletionMessages.model_validate_json(conversation_),
                         response_model=response_model,  # type: ignore
                         model=model_,
                         max_tokens=max_tokens_,
@@ -263,9 +261,9 @@ def instruct(
             max_tokens_,
             temperature_,
             max_retries_,
-        ):
+        ) -> dict[str, Any] | None:
             async with semaphore:
-                return await process_row(
+                result = await process_row(
                     conversation_,
                     model_,
                     model_class_,
@@ -274,6 +272,16 @@ def instruct(
                     temperature_,
                     max_retries_,
                 )
+                if result is None:
+                    return result
+                if not response_model or not response_model_name:
+                    # Basic text response
+                    return {completion_model_name: result.model_dump()}
+                # Structured response
+                return {
+                    response_model_name: result[0].model_dump(),
+                    completion_model_name: result[1].model_dump(),
+                }
 
         async def process_all_rows():
             tasks = [
@@ -287,7 +295,7 @@ def instruct(
                     max_rtr or default_max_retries,
                 )
                 for conv, mdl, mdl_cls, md, max_tkns, temp, max_rtr in zip(
-                    conversations,
+                    conversation,
                     model,
                     model_class,
                     mode,
@@ -307,19 +315,7 @@ def instruct(
             raise
 
         # Convert results to DataFrame
-        return pd.DataFrame(
-            [
-                (
-                    {
-                        model_serializer.response_model_name: res[0].model_dump() if res else None,
-                        model_serializer.completion_model_name: res[1].model_dump() if res else None,
-                    }
-                    if response_model
-                    else {model_serializer.completion_model_name: res.model_dump() if res else None}
-                )
-                for res in results
-            ]
-        )
+        return pd.Series(results)
 
     def pandas_udf_wrapped(
         conversation: Column,
@@ -361,6 +357,6 @@ def instruct(
         if mode is None:
             mode = lit(default_mode.value) if default_mode else lit(None).cast(StringType())
 
-        return _pandas_udf(conversation, model, model_class, mode, max_tokens, temperature, max_retries)
+        return _pandas_udf(to_json(conversation), model, model_class, mode, max_tokens, temperature, max_retries)
 
     return pandas_udf_wrapped
