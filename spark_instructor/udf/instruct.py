@@ -260,7 +260,7 @@ def instruct(
             max_tokens_,
             temperature_,
             max_retries_,
-        ) -> dict[str, Any] | None:
+        ) -> dict[str, Any]:
             async with semaphore:
                 result = await process_row(
                     conversation_,
@@ -272,8 +272,13 @@ def instruct(
                     max_retries_,
                 )
                 if result is None:
-                    return result
-                if not response_model or not response_model_name:
+                    # Ensure failed result is serializable
+                    return (
+                        {completion_model_name: None}
+                        if not response_model_name
+                        else {response_model_name: None, completion_model_name: None}
+                    )
+                if not response_model_name:
                     # Basic text response
                     return {completion_model_name: result.model_dump()}
                 # Structured response
