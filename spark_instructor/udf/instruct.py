@@ -315,7 +315,7 @@ def instruct(
             raise
 
         # Convert results to DataFrame
-        return pd.Series(results)
+        return pd.DataFrame(results)
 
     def pandas_udf_wrapped(
         conversation: Column,
