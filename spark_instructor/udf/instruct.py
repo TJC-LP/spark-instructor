@@ -10,7 +10,6 @@ import pandas as pd
 from pydantic import BaseModel
 from pyspark.sql import Column
 from pyspark.sql.functions import lit, pandas_udf, to_json
-from pyspark.sql.types import IntegerType, StringType
 from tenacity import (
     AsyncRetrying,
     retry_if_exception_type,
@@ -234,9 +233,9 @@ def instruct(
                         max_tokens=max_tokens_,
                         temperature=temperature_,
                         max_retries=(
-                            max_retries_
-                            if isinstance(max_retries_, int)
-                            else create_async_retrying(max_retries_)  # type: ignore
+                            create_async_retrying(max_retries_)
+                            if isinstance(max_retries_, dict)
+                            else max_retries_  # type: ignore
                         ),
                         **kwargs,
                     )
@@ -261,7 +260,7 @@ def instruct(
             max_tokens_,
             temperature_,
             max_retries_,
-        ) -> dict[str, Any] | None:
+        ) -> dict[str, Any]:
             async with semaphore:
                 result = await process_row(
                     conversation_,
@@ -273,8 +272,13 @@ def instruct(
                     max_retries_,
                 )
                 if result is None:
-                    return result
-                if not response_model or not response_model_name:
+                    # Ensure failed result is serializable
+                    return (
+                        {completion_model_name: None}
+                        if not response_model_name
+                        else {response_model_name: None, completion_model_name: None}
+                    )
+                if not response_model_name:
                     # Basic text response
                     return {completion_model_name: result.model_dump()}
                 # Structured response
@@ -315,7 +319,7 @@ def instruct(
             raise
 
         # Convert results to DataFrame
-        return pd.Series(results)
+        return pd.DataFrame(results)
 
     def pandas_udf_wrapped(
         conversation: Column,
@@ -349,13 +353,11 @@ def instruct(
         if temperature is None:
             temperature = lit(default_temperature)
         if max_retries is None:
-            max_retries = (
-                lit(default_max_retries) if isinstance(default_max_retries, int) else lit(None).cast(IntegerType())
-            )
+            max_retries = lit(default_max_retries) if isinstance(default_max_retries, int) else lit(None)
         if model_class is None:
-            model_class = lit(default_model_class) if default_model_class else lit(None).cast(StringType())
+            model_class = lit(default_model_class) if default_model_class else lit(None)
         if mode is None:
-            mode = lit(default_mode.value) if default_mode else lit(None).cast(StringType())
+            mode = lit(default_mode.value) if default_mode else lit(None)
 
         return _pandas_udf(to_json(conversation), model, model_class, mode, max_tokens, temperature, max_retries)
 
