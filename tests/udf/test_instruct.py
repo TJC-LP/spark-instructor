@@ -252,6 +252,40 @@ def test_instruct_execution(spark, mock_registry):
                                                                 },
                                                                 {
                                                                     "metadata": {},
+                                                                    "name": "audio",
+                                                                    "nullable": True,
+                                                                    "type": {
+                                                                        "fields": [
+                                                                            {
+                                                                                "metadata": {},
+                                                                                "name": "id",
+                                                                                "nullable": False,
+                                                                                "type": "string",
+                                                                            },
+                                                                            {
+                                                                                "metadata": {},
+                                                                                "name": "data",
+                                                                                "nullable": False,
+                                                                                "type": "string",
+                                                                            },
+                                                                            {
+                                                                                "metadata": {},
+                                                                                "name": "expires_at",
+                                                                                "nullable": False,
+                                                                                "type": "integer",
+                                                                            },
+                                                                            {
+                                                                                "metadata": {},
+                                                                                "name": "transcript",
+                                                                                "nullable": False,
+                                                                                "type": "string",
+                                                                            },
+                                                                        ],
+                                                                        "type": "struct",
+                                                                    },
+                                                                },
+                                                                {
+                                                                    "metadata": {},
                                                                     "name": "function_call",
                                                                     "nullable": True,
                                                                     "type": {
@@ -367,6 +401,12 @@ def test_instruct_execution(spark, mock_registry):
                                                         "fields": [
                                                             {
                                                                 "metadata": {},
+                                                                "name": "accepted_prediction_tokens",
+                                                                "nullable": True,
+                                                                "type": "integer",
+                                                            },
+                                                            {
+                                                                "metadata": {},
                                                                 "name": "audio_tokens",
                                                                 "nullable": True,
                                                                 "type": "integer",
@@ -374,6 +414,12 @@ def test_instruct_execution(spark, mock_registry):
                                                             {
                                                                 "metadata": {},
                                                                 "name": "reasoning_tokens",
+                                                                "nullable": True,
+                                                                "type": "integer",
+                                                            },
+                                                            {
+                                                                "metadata": {},
+                                                                "name": "rejected_prediction_tokens",
                                                                 "nullable": True,
                                                                 "type": "integer",
                                                             },
