@@ -86,6 +86,7 @@ def get_anthropic_client(
     mode: instructor.Mode = instructor.Mode.ANTHROPIC_JSON,
     base_url: Optional[str] = None,
     api_key: Optional[str] = None,
+    enable_prompt_caching: bool = False,
 ) -> instructor.Instructor:
     """Get the Anthropic client.
 
@@ -100,34 +101,10 @@ def get_anthropic_client(
         )
     if not api_key:
         assert_env_is_set("ANTHROPIC_API_KEY")
-        return instructor.from_anthropic(Anthropic(), mode=mode)
-    return instructor.from_anthropic(Anthropic(api_key=api_key, base_url=base_url), mode=mode)
-
-
-@lru_cache
-def get_anthropic_cache_client(
-    mode: instructor.Mode = instructor.Mode.ANTHROPIC_JSON,
-    base_url: Optional[str] = None,
-    api_key: Optional[str] = None,
-) -> instructor.Instructor:
-    """Get the Anthropic client.
-
-    Ensure that ``ANTHROPIC_API_KEY`` is set.
-    """
-    try:
-        from anthropic import Anthropic
-    except ImportError:
-        raise ImportError(
-            "Please install ``anthropic`` by running ``pip install anthropic`` "
-            "or ``pip install spark-instructor[anthropic]``"
-        )
-    if not api_key:
-        assert_env_is_set("ANTHROPIC_API_KEY")
-        create = instructor.patch(create=Anthropic().beta.prompt_caching.messages.create, mode=mode)
-        return instructor.Instructor(client=Anthropic(), create=create, mode=mode)
-    base_anthropic = Anthropic(api_key=api_key, base_url=base_url)
-    create = instructor.patch(create=base_anthropic.beta.prompt_caching.messages.create, mode=mode)
-    return instructor.Instructor(client=base_anthropic, create=create, mode=mode)
+        return instructor.from_anthropic(Anthropic(), mode=mode, enable_prompt_caching=enable_prompt_caching)
+    return instructor.from_anthropic(
+        Anthropic(api_key=api_key, base_url=base_url), mode=mode, enable_prompt_caching=enable_prompt_caching
+    )
 
 
 @lru_cache
@@ -135,6 +112,7 @@ def get_anthropic_aclient(
     mode: instructor.Mode = instructor.Mode.ANTHROPIC_JSON,
     base_url: Optional[str] = None,
     api_key: Optional[str] = None,
+    enable_prompt_caching: bool = False,
 ) -> instructor.AsyncInstructor:
     """Get the async Anthropic client.
 
@@ -150,34 +128,10 @@ def get_anthropic_aclient(
 
     if not api_key:
         assert_env_is_set("ANTHROPIC_API_KEY")
-        return instructor.from_anthropic(AsyncAnthropic(), mode=mode)
-    return instructor.from_anthropic(AsyncAnthropic(api_key=api_key, base_url=base_url), mode=mode)
-
-
-@lru_cache
-def get_anthropic_cache_aclient(
-    mode: instructor.Mode = instructor.Mode.ANTHROPIC_JSON,
-    base_url: Optional[str] = None,
-    api_key: Optional[str] = None,
-) -> instructor.AsyncInstructor:
-    """Get the Anthropic client.
-
-    Ensure that ``ANTHROPIC_API_KEY`` is set.
-    """
-    try:
-        from anthropic import AsyncAnthropic
-    except ImportError:
-        raise ImportError(
-            "Please install ``anthropic`` by running ``pip install anthropic`` "
-            "or ``pip install spark-instructor[anthropic]``"
-        )
-    if not api_key:
-        assert_env_is_set("ANTHROPIC_API_KEY")
-        create = instructor.patch(create=AsyncAnthropic().beta.prompt_caching.messages.create, mode=mode)
-        return instructor.AsyncInstructor(client=AsyncAnthropic(), create=create, mode=mode)
-    base_anthropic = AsyncAnthropic(api_key=api_key, base_url=base_url)
-    create = instructor.patch(create=base_anthropic.beta.prompt_caching.messages.create, mode=mode)
-    return instructor.AsyncInstructor(client=base_anthropic, create=create, mode=mode)
+        return instructor.from_anthropic(AsyncAnthropic(), mode=mode, enable_prompt_caching=enable_prompt_caching)
+    return instructor.from_anthropic(
+        AsyncAnthropic(api_key=api_key, base_url=base_url), mode=mode, enable_prompt_caching=enable_prompt_caching
+    )
 
 
 @lru_cache

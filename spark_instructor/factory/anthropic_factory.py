@@ -15,10 +15,7 @@ from openai.types.chat.chat_completion_user_message_param import (
 )
 from pydantic import BaseModel
 
-from spark_instructor.client.base import (
-    get_anthropic_aclient,
-    get_anthropic_cache_aclient,
-)
+from spark_instructor.client.base import get_anthropic_aclient
 from spark_instructor.completions.anthropic_completions import (
     Message,
     transform_message_to_chat_completion,
@@ -42,9 +39,11 @@ class AnthropicFactory(ClientFactory):
         **kwargs,
     ) -> "AnthropicFactory":
         """Get an anthropic client."""
-        if kwargs.get("enable_caching", False):
-            return cls(get_anthropic_cache_aclient(mode or instructor.Mode.ANTHROPIC_TOOLS, base_url, api_key))
-        return cls(get_anthropic_aclient(mode or instructor.Mode.ANTHROPIC_JSON, base_url, api_key))
+        return cls(
+            get_anthropic_aclient(
+                mode or instructor.Mode.ANTHROPIC_TOOLS, base_url, api_key, kwargs.get("enable_caching", False)
+            )
+        )
 
     def format_completion(self, completion: Message) -> ChatCompletion:
         """Format an Anthropic ``Message`` as an OpenAI ``ChatCompletion``."""
