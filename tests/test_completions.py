@@ -58,6 +58,7 @@ def test_anthropic_conversion(anthropic_tools_message, anthropic_json_message):
                 "index": 0,
                 "logprobs": None,
                 "message": {
+                    "audio": None,
                     "content": None,
                     "function_call": None,
                     "refusal": None,
@@ -81,8 +82,8 @@ def test_anthropic_conversion(anthropic_tools_message, anthropic_json_message):
         "usage": {
             "completion_tokens": 102,
             "completion_tokens_details": None,
-            "prompt_tokens_details": None,
             "prompt_tokens": 919,
+            "prompt_tokens_details": None,
             "total_tokens": 1021,
         },
     }
@@ -96,6 +97,7 @@ def test_anthropic_conversion(anthropic_tools_message, anthropic_json_message):
                 "index": 0,
                 "logprobs": None,
                 "message": {
+                    "audio": None,
                     "content": '{\n  "name": "John Doe",\n  "age": 30\n}',
                     "function_call": None,
                     "refusal": None,
@@ -135,6 +137,7 @@ def test_databricks_completion():
                 "index": 0,
                 "logprobs": None,
                 "message": {
+                    "audio": None,
                     "content": '```json\n{\n  "name": "John Doe",\n  "age": 30\n}\n```',
                     "role": "assistant",
                     "function_call": None,
@@ -169,6 +172,7 @@ def test_openai_completion():
                 "index": 0,
                 "logprobs": None,
                 "message": {
+                    "audio": None,
                     "content": None,
                     "role": "assistant",
                     "function_call": None,
