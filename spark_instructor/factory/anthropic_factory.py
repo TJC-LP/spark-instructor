@@ -1,6 +1,6 @@
 """Module for creating an Anthropic factory."""
 
-from typing import List, Optional, Type, TypeVar, cast
+from typing import List, Optional, TypeVar, cast
 
 import instructor
 from openai.types.chat import ChatCompletion, ChatCompletionMessageParam
@@ -76,27 +76,3 @@ class AnthropicFactory(ClientFactory):
                     {"type": "text", "text": message["content"], "cache_control": {"type": "ephemeral"}}  # type: ignore
                 ]  # type: ignore
         return messages_unpacked
-
-    async def create(
-        self,
-        response_model: Type[T] | None,
-        messages: SparkChatCompletionMessages,
-        model: str,
-        max_tokens: int,
-        temperature: float,
-        max_retries: int,
-        **kwargs,
-    ) -> ChatCompletion:
-        """Create a completion."""
-        system_message = [m for m in messages.root if m.role == "system"].pop()
-        completion = await self.async_client.chat.completions.create(
-            system=system_message.as_system()["content"],
-            response_model=response_model,  # type: ignore
-            messages=self.format_messages(messages, ignore_system=True),
-            model=model,
-            max_retries=max_retries,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            **kwargs,
-        )
-        return self.format_completion(cast(Message, completion))
