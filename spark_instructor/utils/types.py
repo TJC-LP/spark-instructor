@@ -131,7 +131,7 @@ def _process_field(field_name: str, field_schema: dict, fields: Dict[str, tuple[
         if not is_required:
             field_type = Optional[field_type]
         default = ... if is_required else None
-        fields[field_name] = (field_type, Field(default=default))
+        fields[field_name] = (field_type, Field(default=default))  # type: ignore
     elif field_schema["type"] in ["list", "dict", "typed-dict", "generator"]:
         nested_fields: Dict[str, tuple[Any, FieldInfo]] = {}
         _process_schema(field_schema, nested_fields)
