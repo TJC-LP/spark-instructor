@@ -24,7 +24,7 @@ instructor = "^1.6.3"
 python-dotenv = "^1.0.1"
 sparkdantic = "^1.1.0"
 pyarrow = ">=8.0.0"
-databricks-connect = { version = "^15.0.0,<=15.3.2", optional = true }
+databricks-connect = { version = "^15.0.0,<=15.4.6", optional = true }
 databricks-sdk = { version = "^0.38.0", optional = true }
 anthropic = { version = "^0.40.0", optional = true }
 
@@ -62,7 +62,7 @@ databricks = ["databricks-connect", "databricks-sdk"]
 anthropic = ["anthropic"]
 
 [tool.poetry.group.databricks.dependencies]
-databricks-connect = { version = "^15.1.0.dev0", optional = true }
+databricks-connect = { version = "^15.1.0", optional = true }
 databricks-sdk = { version = "^0.38.0", optional = true }
 
 [tool.poetry.group.anthropic.dependencies]
