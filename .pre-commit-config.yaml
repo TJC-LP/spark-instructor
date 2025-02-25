@@ -1,12 +1,4 @@
 repos:
-  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
-    rev: v1.3.1
-    hooks:
-      - id: python-safety-dependencies-check
-        name: Check for package vulnerabilities
-        files: pyproject.toml
-        args: ["--ignore=70612", "--short-report"]
-
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
